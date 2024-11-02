@@ -1,0 +1,1 @@
+https://github.com/andyp123/blender_io_mesh_qmap/blob/master/io_mesh_qmap/map_importer.py
