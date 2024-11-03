@@ -2,7 +2,6 @@
 
 // WAD3 (Half-Life) Header and mip structs
 #include <iostream>
-#include <windows.h>
 
 using namespace std;
 
@@ -38,37 +37,37 @@ using namespace std;
 
 typedef struct
 {
-	DWORD		identification;
-	DWORD		numlumps;
-	DWORD		infotableofs;			// Lump table
+	unsigned int		identification;
+	unsigned int		numlumps;
+	unsigned int		infotableofs;			// Lump table
 } WAD3_HEADER, *LPWAD3_HEADER;
 
 typedef struct
 {
-	DWORD		filepos;
-	DWORD		disksize;
-	DWORD		size;					// uncompressed
-	BYTE		type;
-	BYTE		compression;
-	BYTE		pad1, pad2;
+	unsigned int		filepos;
+	unsigned int		disksize;
+	unsigned int		size;					// uncompressed
+	unsigned char		type;
+	unsigned char		compression;
+	unsigned char		pad1, pad2;
 	char		name[16];				// must be null terminated
 } WAD3_LUMP, *LPWAD3_LUMP;
 
 typedef struct
 {
 	char		name[16];
-	DWORD		width, height;
-	DWORD		offsets[4];		// four mip maps stored
+	unsigned int		width, height;
+	unsigned int		offsets[4];		// four mip maps stored
 } WAD3_MIP, *LPWAD3_MIP;
 
-extern void MapFile( LPCTSTR szFileName, LPVOID *pView, LPDWORD pdwFileSize);
-extern int CorruptWAD3( LPCTSTR szErrorMessage, LPVOID lpView);
+extern void MapFile( const char* szFileName, void **pView, unsigned int pdwFileSize);
+extern int CorruptWAD3( const char* szErrorMessage, void* lpView);
 
 class CWADException
 {
 private:
-	DWORD m_dwError;
-	LPCTSTR m_szErrorMessage;
+	unsigned int m_dwError;
+	const char* m_szErrorMessage;
 
 public:
 	CWADException()
@@ -76,12 +75,12 @@ public:
 		m_szErrorMessage = NULL;
 		m_dwError = ::GetLastError();
 	}
-	CWADException( DWORD dwError)
+	CWADException( unsigned int dwError)
 	{
 		m_szErrorMessage = NULL;
 		m_dwError = dwError;
 	}
-	CWADException( LPCTSTR szErrorMessage)
+	CWADException( const char* szErrorMessage)
 	{
 		m_dwError = 0;
 		m_szErrorMessage = szErrorMessage;
@@ -92,7 +91,7 @@ public:
 	{
 		if (m_dwError)
 		{
-			LPVOID lpMsgBuf;
+			void* lpMsgBuf;
 			FormatMessage( 
 				FORMAT_MESSAGE_ALLOCATE_BUFFER | 
 				FORMAT_MESSAGE_FROM_SYSTEM | 

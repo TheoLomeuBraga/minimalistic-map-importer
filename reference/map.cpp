@@ -9,13 +9,37 @@
 ////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <vector>
 #include <fstream>
 #include <cmath>
+#include <cstring>
 
 using namespace std;
 
 #include "map.h"
 #include "WAD3.h"
+
+bool read_file(char *path, std::vector<char> *buffer)
+{
+    std::ifstream file(path);
+    if (!file.is_open())
+    {
+        return false;
+    }
+
+    file.seekg(0, std::ios::end);
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    (*buffer).resize(size);
+    if (!file.read((*buffer).data(), size))
+    {
+        return false;
+    }
+
+    file.close();
+    return true;
+}
 
 
 MAPFile::Result MAPFile::ParseEntity ( Entity **ppEntity_ )
@@ -60,7 +84,7 @@ MAPFile::Result MAPFile::ParseEntity ( Entity **ppEntity_ )
 	while ( true )
 	{
 		char	c		= 0;
-		unsigned long	dwRead	= 0;
+		unsigned int	dwRead	= 0;
 
 		if ( ReadFile ( m_hFile, &c, 1, &dwRead, NULL ) == FALSE )
 		{
@@ -451,7 +475,7 @@ MAPFile::Result MAPFile::ParseBrush ( Brush **ppBrush_ )
 	while ( true )
 	{
 		char	c		= 0;
-		DWORD	dwRead	= 0;
+		unsigned int	dwRead	= 0;
 
 		if ( ReadFile ( m_hFile, &c, 1, &dwRead, NULL ) == FALSE )
 		{
@@ -662,26 +686,26 @@ MAPFile::Result MAPFile::ParseProperty ( Property **ppProperty_ )
 			{
 				if ( m_pWAD == NULL )
 				{
-					m_pWAD = new LPVOID[ m_iWADFiles + 1 ];
-					m_pWADSize = new DWORD[ m_iWADFiles + 1 ];
+					m_pWAD = new void*[ m_iWADFiles + 1 ];
+					m_pWADSize = new unsigned int[ m_iWADFiles + 1 ];
 				}
 				else
 				{
-					LPVOID *pOldWAD = new LPVOID[ m_iWADFiles ];
-					memcpy ( pOldWAD, m_pWAD, sizeof ( LPVOID ) * ( m_iWADFiles ) );
+					void* *pOldWAD = new void*[ m_iWADFiles ];
+					memcpy ( pOldWAD, m_pWAD, sizeof ( void* ) * ( m_iWADFiles ) );
 					delete m_pWAD;
 
-					m_pWAD = new LPVOID[ m_iWADFiles + 1 ];
-					memcpy ( m_pWAD, pOldWAD, sizeof ( LPVOID ) * ( m_iWADFiles ) );
+					m_pWAD = new void*[ m_iWADFiles + 1 ];
+					memcpy ( m_pWAD, pOldWAD, sizeof ( void* ) * ( m_iWADFiles ) );
 
 					delete [] pOldWAD;
 
-					DWORD *pOldSize = new DWORD[ m_iWADFiles ];
-					memcpy ( pOldSize, m_pWADSize, sizeof ( DWORD ) * ( m_iWADFiles ) );
+					unsigned int *pOldSize = new unsigned int[ m_iWADFiles ];
+					memcpy ( pOldSize, m_pWADSize, sizeof ( unsigned int ) * ( m_iWADFiles ) );
 					delete m_pWADSize;
 
-					m_pWADSize = new DWORD[ m_iWADFiles + 1 ];
-					memcpy ( m_pWADSize, pOldSize, sizeof ( DWORD ) * ( m_iWADFiles ) );
+					m_pWADSize = new unsigned int[ m_iWADFiles + 1 ];
+					memcpy ( m_pWADSize, pOldSize, sizeof ( unsigned int ) * ( m_iWADFiles ) );
 
 					delete [] pOldSize;
 				}
@@ -975,7 +999,7 @@ MAPFile::Result MAPFile::GetToken ( )
 {
 	unsigned int	i		= 0;
 	char			c		= 0;
-	DWORD			dwRead	= 0;
+	unsigned int			dwRead	= 0;
 
 	memset ( &m_acToken, 0, sizeof ( m_acToken ) );
 
@@ -1023,7 +1047,7 @@ MAPFile::Result MAPFile::GetString ( )
 	unsigned int	i			= 0;
 	char			c			= 0;
 	bool			bFinished	= false;
-	DWORD			dwRead		= 0;
+	unsigned int			dwRead		= 0;
 
 	memset ( &m_acToken, 0, sizeof ( m_acToken ) );
 

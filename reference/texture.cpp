@@ -6,7 +6,7 @@
 // Texture member functions
 ////////////////////////////////////////////////////////////////////
 
-Texture* Texture::GetTexture ( char *pacTexture_, LPVOID lpView_, DWORD dwFileSize_, Texture::eGT &rResult_ )
+Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dwFileSize_, Texture::eGT &rResult_ )
 {
 	rResult_ = eGT::GT_ERROR;
 
@@ -33,13 +33,13 @@ Texture* Texture::GetTexture ( char *pacTexture_, LPVOID lpView_, DWORD dwFileSi
 	LPWAD3_LUMP		lpLump			= NULL;
 	LPWAD3_MIP		lpMip			= NULL;
 
-	DWORD			dwNumLumps		= 0;
-	DWORD			dwTableOffset	= 0;
-	DWORD			dwFilePos		= 0;
-	DWORD			dwPaletteOffset	= 0;
+	unsigned int			dwNumLumps		= 0;
+	unsigned int			dwTableOffset	= 0;
+	unsigned int			dwFilePos		= 0;
+	unsigned int			dwPaletteOffset	= 0;
 	WORD			wPaletteSize	= 0;
-	DWORD			dwWidth			= 0;
-	DWORD			dwHeight		= 0;
+	unsigned int			dwWidth			= 0;
+	unsigned int			dwHeight		= 0;
 
 	// Make sure it's at least big enough to manipulate the header
 	if (dwFileSize_ < sizeof(WAD3_HEADER))
@@ -76,10 +76,10 @@ Texture* Texture::GetTexture ( char *pacTexture_, LPVOID lpView_, DWORD dwFileSi
 	}
 
 	// Point at the first table entry
-	lpLump = (LPWAD3_LUMP)((LPBYTE)lpView_ + dwTableOffset);
+	lpLump = (LPWAD3_LUMP)((LPunsigned char)lpView_ + dwTableOffset);
 
 	bool	bFound = false;
-	DWORD	j = 0;
+	unsigned int	j = 0;
 
 	while ( ( !bFound ) && ( j < dwNumLumps ) )
 	{		
@@ -101,7 +101,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, LPVOID lpView_, DWORD dwFileSi
 				}
 
 				// Point at the mip
-				lpMip = ( LPWAD3_MIP )( ( LPBYTE )lpView_ + dwFilePos );
+				lpMip = ( LPWAD3_MIP )( ( LPunsigned char )lpView_ + dwFilePos );
 
 				strcpy ( pTexture->name, pacTexture_ );
 

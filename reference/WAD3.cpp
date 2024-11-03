@@ -39,13 +39,13 @@
 #include "WAD3.h"
 #include "stdio.h"
 
-void MapFile( LPCTSTR szFileName, LPVOID *pView, LPDWORD pdwFileSize )
+void MapFile( const char* szFileName, void **pView, LPunsigned int pdwFileSize)
 {
 	HANDLE hFile = NULL;
 	HANDLE hFileMapping = NULL;
-	LPVOID lpView = NULL;
-	DWORD dwFileSize = 0;
-	DWORD dwError = 0;
+	void* lpView = NULL;
+	unsigned int dwFileSize = 0;
+	unsigned int dwError = 0;
 
 	hFile = CreateFile( 
 		szFileName,					// Name of file
@@ -96,7 +96,7 @@ void MapFile( LPCTSTR szFileName, LPVOID *pView, LPDWORD pdwFileSize )
 		FILE_MAP_READ,				// Desired access
 		0,							// Offset high
 		0,							// Offset low
-		0);							// Number of bytes
+		0);							// Number of unsigned chars
 
 	if (lpView == NULL)
 	{
@@ -119,7 +119,7 @@ void MapFile( LPCTSTR szFileName, LPVOID *pView, LPDWORD pdwFileSize )
 	}
 }
 
-int CorruptWAD3( LPCTSTR szErrorMessage, LPVOID lpView)
+int CorruptWAD3( const char* szErrorMessage, void* lpView)
 {
 	UnmapViewOfFile( lpView);
 	throw CWADException( szErrorMessage);

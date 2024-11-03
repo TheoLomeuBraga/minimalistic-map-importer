@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 using namespace std;
 
@@ -34,7 +35,7 @@ void WriteCMF ( Entity *pEntity_, Texture *pTextures_, char *pacFilename_ )
 /*
 Header:
 	3 char		CMF ID ("CMF")
-	1 char		Version byte
+	1 char		Version unsigned char
 	1 uint		Number of WAD files
 	1 uint		Number of entities
 	1 uint		Number of textures

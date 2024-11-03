@@ -47,11 +47,11 @@ private:
 
 	char	m_acToken[ MAX_TOKEN_LENGTH + 1 ];
 
-	HANDLE	m_hFile;
+	int	m_hFile;
 
 	int		m_iWADFiles;
 	void	**m_pWAD;
-	unsigned long	*m_pWADSize;
+	unsigned int	*m_pWADSize;
 	Texture	*m_pTextureList;
 
 	int		m_iEntities;

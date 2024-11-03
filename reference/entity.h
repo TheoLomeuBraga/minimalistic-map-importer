@@ -29,7 +29,7 @@ public:
 	Texture ( );
 	~Texture ( );
 
-	Texture* GetTexture ( char *pacTexture_, void* lpView_, unsigned long dwFileSize_, eGT &rResult_ );
+	Texture* GetTexture ( char *pacTexture_, void* lpView_, unsigned int dwFileSize_, eGT &rResult_ );
 	Texture* GetNext ( ) const { return m_pNext; }
 
 	bool IsLast ( ) const;
