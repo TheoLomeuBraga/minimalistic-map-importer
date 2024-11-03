@@ -8,7 +8,7 @@ add_subdirectory(libs/SDL_image)
 
 #exe
 set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-include_directories(demo include libs/SDL/include libs/SDL_image/include)
+include_directories(demo include reference libs/SDL/include libs/SDL_image/include)
 add_executable(demo shaders demo/main.cpp)
 
 find_package(OpenGL REQUIRED)
