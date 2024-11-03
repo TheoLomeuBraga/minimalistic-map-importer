@@ -62,7 +62,7 @@ typedef struct
 
 extern void MapFile( const char* szFileName, void **pView, unsigned int pdwFileSize);
 extern int CorruptWAD3( const char* szErrorMessage, void* lpView);
-
+/*
 class CWADException
 {
 private:
@@ -114,3 +114,4 @@ public:
 		}
 	}
 };
+*/
