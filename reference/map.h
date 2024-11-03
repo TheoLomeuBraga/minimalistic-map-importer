@@ -17,8 +17,6 @@ const unsigned int MAX_TEXTURE_LENGTH	= 16;
 
 using namespace std;
 
-#include <windows.h>
-
 #ifdef _DEBUG
 #include <crtdbg.h>
 
