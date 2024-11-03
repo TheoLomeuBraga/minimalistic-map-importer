@@ -1,1 +1,3 @@
-https://github.com/andyp123/blender_io_mesh_qmap/blob/master/io_mesh_qmap/map_importer.py
+https://github.com/stefanha/map-files/tree/f28e6a33b41e8748990e092f2878add5c1922cb8
+
+https://github.com/fzwoch/quake_map_source
