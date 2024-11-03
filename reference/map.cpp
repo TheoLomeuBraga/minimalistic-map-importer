@@ -60,7 +60,7 @@ MAPFile::Result MAPFile::ParseEntity ( Entity **ppEntity_ )
 	while ( true )
 	{
 		char	c		= 0;
-		DWORD	dwRead	= 0;
+		unsigned long	dwRead	= 0;
 
 		if ( ReadFile ( m_hFile, &c, 1, &dwRead, NULL ) == FALSE )
 		{

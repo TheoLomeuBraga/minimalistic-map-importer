@@ -50,8 +50,8 @@ private:
 	HANDLE	m_hFile;
 
 	int		m_iWADFiles;
-	LPVOID	*m_pWAD;
-	DWORD	*m_pWADSize;
+	void	**m_pWAD;
+	unsigned long	*m_pWADSize;
 	Texture	*m_pTextureList;
 
 	int		m_iEntities;

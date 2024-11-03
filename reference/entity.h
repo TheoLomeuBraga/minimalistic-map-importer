@@ -29,7 +29,7 @@ public:
 	Texture ( );
 	~Texture ( );
 
-	Texture* GetTexture ( char *pacTexture_, LPVOID lpView_, DWORD dwFileSize_, eGT &rResult_ );
+	Texture* GetTexture ( char *pacTexture_, void* lpView_, unsigned long dwFileSize_, eGT &rResult_ );
 	Texture* GetNext ( ) const { return m_pNext; }
 
 	bool IsLast ( ) const;
@@ -68,7 +68,7 @@ public:
 	void SortVerticesCW ( );
 	void ToLeftHanded ( );
 	void CalculateTextureCoordinates ( int texWidth, int texHeight, Plane texAxis[ 2 ], double texScale[ 2 ] );
-	void Poly::SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ );
+	void SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ );
 	eCP ClassifyPoly ( Poly *pPoly_ );
 
 	bool IsLast ( ) const;
