@@ -1,5 +1,5 @@
 #pragma once
-
+#include <string>
 
 ////////////////////////////////////////////////////////////////////
 // Class definitions
@@ -15,7 +15,7 @@ public:
 	float	texOffset[ 2 ];
 	float   texRotation;
 	float	texScale[ 2 ];
-	char	*pTexture;
+	std::string pTexture;
 
 	Face *GetNext ( ) const { return m_pNext; }
 

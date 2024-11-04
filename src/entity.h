@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+#include <string>
 
 ////////////////////////////////////////////////////////////////////
 // Class definitions
@@ -29,7 +31,7 @@ public:
 
 	Vertex			*verts;
 	Plane			plane;
-	char            *TextureID;
+	std::string TextureID;
 
 	Poly *GetNext ( ) const { return m_pNext; }
 	Poly *CopyList ( ) const;
@@ -37,6 +39,7 @@ public:
 	Poly *ClipToList ( Poly *pPoly_, bool bClipOnPlane_ );
 
 	int GetNumberOfVertices ( ) const { return m_iNumberOfVertices; }
+	std::vector<Triangle> convert_to_triangles();
 
 	void AddVertex ( Vertex &Vertex_ );
 	void AddPoly ( Poly *pPoly_ );

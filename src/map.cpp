@@ -319,6 +319,8 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 	pFace->texScale[0] = f[3];
 	pFace->texScale[1] = f[4];
 
+	
+
 	*ppFace_ = pFace;
 
 	return RESULT_SUCCEED;

@@ -5,6 +5,32 @@
 // Entity member functions
 ////////////////////////////////////////////////////////////////////
 
+std::vector<Triangle> Poly::convert_to_triangles() {
+    std::vector<Triangle> triangles;
+
+    // Verifica se o polígono tem pelo menos três vértices
+    if (GetNumberOfVertices() < 3) {
+        return triangles; // Retorna vazio se não há vértices suficientes
+    }
+
+    // Itera pelos vértices do polígono para formar triângulos em "fã"
+    for (int i = 1; i < GetNumberOfVertices() - 1; ++i) {
+        Triangle triangle;
+
+        // Primeiro vértice do triângulo é sempre o primeiro vértice do polígono
+        triangle.vertex[0] = verts[0];
+
+        // Segundo e terceiro vértices do triângulo são os vértices i e i+1
+        triangle.vertex[1] = verts[i];
+        triangle.vertex[2] = verts[i + 1];
+
+        // Adiciona o triângulo à lista de triângulos
+        triangles.push_back(triangle);
+    }
+
+    return triangles;
+}
+
 void Entity::WriteEntity ( std::ofstream &ofsFile_ ) const
 {
 /*	Entity:

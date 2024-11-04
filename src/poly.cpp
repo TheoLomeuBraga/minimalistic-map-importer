@@ -341,6 +341,8 @@ void Poly::SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ )
 void Poly::CalculateTextureCoordinates (float *f )
 {
 
+	
+
 	float	Offset[ 2 ] = {f[0],f[1]};
 	float   Rotation = f[2];
 	float	Scale[ 2 ] = {f[3],f[4]};
@@ -692,7 +694,7 @@ Poly::Poly ( )
 	m_pNext				= NULL;
 	verts				= NULL;
 	m_iNumberOfVertices	= 0;
-	TextureID			= 0;
+	TextureID			= "";
 }
 
 
