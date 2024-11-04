@@ -404,9 +404,9 @@ void Poly::CalculateTextureCoordinates(float *f)
 	}
 	Vector3 normal = CalculateNormal(points);
 
-	Vector3 up(0, 1, 0);
-	Vector3 right(1, 0, 0);
-	Vector3 foward(0, 0, -1);
+	Vector3 up(0, 0, 1);
+	Vector3 right(0, 1, 0);
+	Vector3 foward(1, 0, 0);
 
 	float du = fabs(normal.Dot(up));
 	float dr = fabs(normal.Dot(right));
