@@ -40,30 +40,32 @@ void Poly::WritePoly(std::ofstream &ofsFile_) const
 	}
 }
 
-std::vector<Triangle> Poly::convert_to_triangles() {
-    std::vector<Triangle> triangles;
+std::vector<Triangle> Poly::convert_to_triangles()
+{
+	std::vector<Triangle> triangles;
 
-    
-    if (GetNumberOfVertices() < 3) {
-        return triangles;
-    }
+	if (GetNumberOfVertices() < 3)
+	{
+		return triangles;
+	}
 
-    for (int i = 1; i < GetNumberOfVertices() - 1; ++i) {
-        Triangle triangle;
-		
-        triangle.vertex[0] = verts[0];
+	for (int i = 1; i < GetNumberOfVertices() - 1; ++i)
+	{
+		Triangle triangle;
+
+		triangle.vertex[0] = verts[0];
 		triangle.vertex[0].p.x = -triangle.vertex[0].p.x;
-		
-        triangle.vertex[1] = verts[i];
+
+		triangle.vertex[1] = verts[i];
 		triangle.vertex[1].p.x = -triangle.vertex[1].p.x;
 
-        triangle.vertex[2] = verts[i + 1];
+		triangle.vertex[2] = verts[i + 1];
 		triangle.vertex[2].p.x = -triangle.vertex[2].p.x;
-		
-        triangles.push_back(triangle);
-    }
 
-    return triangles;
+		triangles.push_back(triangle);
+	}
+
+	return triangles;
 }
 
 const bool Poly::operator==(const Poly &arg_) const
@@ -364,6 +366,27 @@ void Poly::SplitPoly(Poly *pPoly_, Poly **ppFront_, Poly **ppBack_)
 	*ppBack_ = pBack;
 }
 
+Vector3 CalculateNormal(std::vector<Vector3> points)
+{
+
+	Vector3 normal(0.0f, 0.0f, 0.0f);
+
+	// Itera sobre todos os pontos e acumula as normais calculadas
+	for (size_t i = 1; i < points.size() - 1; ++i)
+	{
+		Vector3 edge1 = points[i] - points[0];
+		Vector3 edge2 = points[i + 1] - points[0];
+		Vector3 crossProduct = edge1.Cross(edge2);
+
+		normal = normal + crossProduct;
+	}
+
+	// Normaliza a normal acumulada
+	normal.Normalize();
+
+	return normal;
+}
+
 void Poly::CalculateTextureCoordinates(float *f)
 {
 
@@ -374,6 +397,20 @@ void Poly::CalculateTextureCoordinates(float *f)
 	const float sinTheta = sin(Rotation);
 
 	// normal
+	std::vector<Vector3> points;
+	for (int i = 0; i < GetNumberOfVertices(); i++)
+	{
+		points.push_back(verts[i].p);
+	}
+	Vector3 normal = CalculateNormal(points);
+
+	Vector3 up(0, 1, 0);
+	Vector3 right(1, 0, 0);
+	Vector3 foward(0, 0, -1);
+
+	float du = fabs(normal.Dot(up));
+	float dr = fabs(normal.Dot(right));
+	float df = fabs(normal.Dot(foward));
 
 	// uv
 	for (int i = 0; i < GetNumberOfVertices(); i++)
@@ -381,36 +418,45 @@ void Poly::CalculateTextureCoordinates(float *f)
 
 		Vector3 pos = verts[i].p;
 
-		Vector3 uAxis, vAxis;
-		
-		if (fabs(plane.n.x) > fabs(plane.n.z))
-			uAxis = Vector3(-plane.n.y, plane.n.x, 0.0f);
-		else
-			uAxis = Vector3(0.0f, -plane.n.z, plane.n.y);
+		float u_coord, v_coord;
 
-		uAxis.Normalize();
-		vAxis = plane.n.Cross(uAxis);
-		vAxis.Normalize();
+		if (du >= dr && du >= df)
+		{
+			u_coord = verts[i].p.x;
+			v_coord = -verts[i].p.y;
+		}
+		else if (dr >= du && dr >= df)
+		{
+			u_coord = verts[i].p.x;
+			v_coord = -verts[i].p.z;
+		}
+		else if (df >= du && df >= dr)
+		{
+			u_coord = verts[i].p.y;
+			v_coord = -verts[i].p.z;
+		}
 
-		Vector3 relativePosition = pos - Vector3(plane.n.x * plane.d,plane.n.y * plane.d,plane.n.z * plane.d);
-		float u_coord = relativePosition.Dot(uAxis);
-		float v_coord = relativePosition.Dot(vAxis);
+		float angle = Rotation * (M_PI / 180.0f);
+		float cosTheta = cos(angle);
+		float sinTheta = sin(angle);
 
-		u_coord += Offset[0];
-		v_coord += Offset[1];
+		u_coord = u_coord * cosTheta - v_coord * sinTheta;
+		v_coord = u_coord * sinTheta + v_coord * cosTheta;
 
-		u_coord *= Scale[0] * 2;
-		v_coord *= Scale[1] * 2;
+		u_coord = u_coord + Offset[0];
+		v_coord = v_coord + Offset[1];
 
-		float rotatedU = u_coord * cosTheta - v_coord * sinTheta;
-		float rotatedV = u_coord * sinTheta + v_coord * cosTheta;
+		u_coord = u_coord * Scale[0];
+		v_coord = v_coord * Scale[1];
 
-		printf("uv: %f , %f\n",rotatedU,rotatedV);
+		printf("normal: %f , %f , %f\n", normal.x, normal.y, normal.z);
+		// printf("uv: %f , %f\n", u_coord, v_coord);
 
-		verts[i].tex[0] = rotatedU;
-		verts[i].tex[1] = rotatedV;
+		verts[i].tex[0] = u_coord;
+		verts[i].tex[1] = v_coord;
 	}
 
+	/*
 	//
 	// Check which axis should be normalized
 	//
@@ -511,6 +557,7 @@ void Poly::CalculateTextureCoordinates(float *f)
 			verts[i].tex[1] = verts[i].tex[1] - NearestV;
 		}
 	}
+	*/
 }
 
 void Poly::SortVerticesCW()

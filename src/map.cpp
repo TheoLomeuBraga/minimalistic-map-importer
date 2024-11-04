@@ -164,6 +164,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 			//
 			// Perform CSG union
 			//
+			/*
 			if (pBrushes != NULL)
 			{
 				pEntity->AddPoly(pBrushes->MergeList());
@@ -173,29 +174,30 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 				pBrushes = NULL;
 				m_iPolygons += pEntity->GetNumberOfPolys();
 			}
-			/*	Do not perform CSG union (useful for debugging)
-						if ( pBrushes != NULL )
-						{
-							Brush	*pBrush = pBrushes;
-
-							while ( pBrush != NULL )
-							{
-								Poly	*pPoly = pBrush->GetPolys ( );
-
-								if ( pPoly != NULL )
-								{
-									pEntity->AddPoly ( pPoly->CopyList ( ) );
-								}
-
-								pBrush = pBrush->GetNext ( );
-							}
-
-							delete pBrushes;
-
-							pBrushes	= NULL;
-							m_iPolygons	+= pEntity->GetNumberOfPolys ( );
-						}
 			*/
+			// Do not perform CSG union (useful for debugging)
+			if (pBrushes != NULL)
+			{
+				Brush *pBrush = pBrushes;
+
+				while (pBrush != NULL)
+				{
+					Poly *pPoly = pBrush->GetPolys();
+
+					if (pPoly != NULL)
+					{
+						pEntity->AddPoly(pPoly->CopyList());
+					}
+
+					pBrush = pBrush->GetNext();
+				}
+
+				delete pBrushes;
+
+				pBrushes = NULL;
+				m_iPolygons += pEntity->GetNumberOfPolys();
+			}
+
 			break;
 		}
 		else
@@ -238,8 +240,6 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 		delete *ppFace_;
 		*ppFace_ = NULL;
 	}
-
-	
 
 	Face *pFace = new Face;
 
@@ -288,7 +288,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 	bool bFound = false;
 
 	// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-	//std::cout << "texture name: " << m_acToken << " size:" << std::string(m_acToken).size() << std::endl;
+	// std::cout << "texture name: " << m_acToken << " size:" << std::string(m_acToken).size() << std::endl;
 	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 	pFace->pTexture = m_acToken;
@@ -297,7 +297,6 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 	// Read texture axis
 	//
 
-	
 	float f[5];
 
 	result = ParseTextureDisplay(f);
@@ -318,8 +317,6 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	pFace->texScale[0] = f[3];
 	pFace->texScale[1] = f[4];
-
-	
 
 	*ppFace_ = pFace;
 
@@ -757,11 +754,11 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 {
 
 	Result result = GetToken();
-	//std::cout << m_acToken << std::endl;
+	// std::cout << m_acToken << std::endl;
 	f[0] = atof(m_acToken);
 
 	result = GetToken();
-	//std::cout << m_acToken << std::endl;
+	// std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -771,7 +768,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	f[1] = atof(m_acToken);
 
 	result = GetToken();
-	//std::cout << m_acToken << std::endl;
+	// std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -781,7 +778,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	f[2] = atof(m_acToken);
 
 	result = GetToken();
-	//std::cout << m_acToken << std::endl;
+	// std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -791,7 +788,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	f[3] = atof(m_acToken);
 
 	result = GetToken();
-	//std::cout << m_acToken << std::endl;
+	// std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -800,7 +797,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 
 	f[4] = atof(m_acToken);
 
-	//printf("%f %f %f %f %f \n",f[0],f[1],f[2],f[3],f[4]);
+	// printf("%f %f %f %f %f \n",f[0],f[1],f[2],f[3],f[4]);
 
 	return RESULT_SUCCEED;
 }

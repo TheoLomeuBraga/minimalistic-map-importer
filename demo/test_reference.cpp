@@ -5,22 +5,24 @@
 #include <cmath>
 #include "map.h"
 
-
-int main() {
+int main()
+{
     std::cout << "Iniciando conversão para obj...\n";
 
     MAPFile map;
-    Entity* entities = NULL;
+    Entity *entities = NULL;
 
     // Carrega o arquivo .map
-    if (!map.Load("map.map", &entities)) {
+    if (!map.Load("map.map", &entities))
+    {
         std::cout << "Erro ao carregar o arquivo map.map\n";
         return 0;
     }
 
     // Abre o arquivo .obj para escrita
     std::ofstream objFile("obj.obj");
-    if (!objFile.is_open()) {
+    if (!objFile.is_open())
+    {
         std::cerr << "Não foi possível abrir o arquivo obj.obj para escrita.\n";
         return 0;
     }
@@ -29,32 +31,49 @@ int main() {
 
     // Itera pelas entidades
     int eid = 0;
-    Entity* e = entities;
-    while (e != NULL) {
+    std::string last_texture;
+
+    Entity *e = entities;
+
+    objFile << "o " << eid << "\n";
+    eid++;
+
+    while (e != NULL)
+    {
 
         // Itera pelos polígonos da entidade
-        Poly* po = e->GetPolys();
-        while (po != NULL) {
+        Poly *po = e->GetPolys();
+        while (po != NULL)
+        {
             // Escreve a textura como comentário no arquivo OBJ
             objFile << "# Texture: " << po->TextureID << "\n";
 
+            if (last_texture != po->TextureID)
+            {
+                objFile << "o " << eid << "\n";
+                eid++;
+                last_texture = po->TextureID;
+            }
+
             // Converte o polígono em uma lista de triângulos
-            for (const Triangle& t : po->convert_to_triangles()) {
-                
+            for (const Triangle &t : po->convert_to_triangles())
+            {
+
                 // Para cada vértice do triângulo
-                for (int i = 0; i < 3; ++i) {
-                    const Vertex& v = t.vertex[i];
+                for (int i = 0; i < 3; ++i)
+                {
+                    const Vertex &v = t.vertex[i];
 
                     // Escreve a posição do vértice
                     objFile << "v " << v.p.x << " " << v.p.y << " " << v.p.z << "\n";
 
                     // Escreve as coordenadas de textura do vértice
                     objFile << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
-                    //std::cout << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
+                    // std::cout << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
                 }
 
                 // Escreve a face usando os índices dos três vértices do triângulo
-                objFile << "f " 
+                objFile << "f "
                         << vertexIndex << "/" << vertexIndex << " "
                         << (vertexIndex + 1) << "/" << (vertexIndex + 1) << " "
                         << (vertexIndex + 2) << "/" << (vertexIndex + 2) << "\n";
@@ -65,7 +84,7 @@ int main() {
 
             po = po->GetNext();
         }
-        
+
         e = e->GetNext();
     }
 
