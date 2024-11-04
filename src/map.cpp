@@ -285,7 +285,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 	Texture::eGT Result;
 
 	//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-	std::cout << m_acToken << std::string(m_acToken).size() << std::endl;
+	std::cout << "texture name: " << m_acToken << std::string(m_acToken).size() << std::endl;
 	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 	if (m_pTextureList == NULL)
