@@ -38,6 +38,7 @@
 
 #include "WAD3.h"
 #include "stdio.h"
+#include "read_file_bytes.h"
 
 void MapFile( const char* szFileName, void **pView, LPunsigned int pdwFileSize)
 {

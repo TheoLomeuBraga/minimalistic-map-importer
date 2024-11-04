@@ -77,7 +77,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 	}
 
 	// Point at the first table entry
-	lpLump = (LPWAD3_LUMP)((unsigned int*)lpView_ + dwTableOffset);
+	lpLump = (LPWAD3_LUMP)((unsigned char*)lpView_ + dwTableOffset);
 
 	bool	bFound = false;
 	unsigned int	j = 0;
@@ -102,7 +102,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 				}
 
 				// Point at the mip
-				lpMip = ( LPWAD3_MIP )( ( unsigned int* )lpView_ + dwFilePos );
+				lpMip = ( LPWAD3_MIP )( (unsigned char* )lpView_ + dwFilePos );
 
 				strcpy ( pTexture->name, pacTexture_ );
 
