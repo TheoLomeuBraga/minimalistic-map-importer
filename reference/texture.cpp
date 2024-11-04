@@ -1,5 +1,6 @@
 #include "map.h"
 #include "WAD3.h"
+#include <string.h>
 
 
 ////////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 	unsigned int			dwTableOffset	= 0;
 	unsigned int			dwFilePos		= 0;
 	unsigned int			dwPaletteOffset	= 0;
-	WORD			wPaletteSize	= 0;
+	unsigned int			wPaletteSize	= 0;
 	unsigned int			dwWidth			= 0;
 	unsigned int			dwHeight		= 0;
 
@@ -76,7 +77,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 	}
 
 	// Point at the first table entry
-	lpLump = (LPWAD3_LUMP)((LPunsigned char)lpView_ + dwTableOffset);
+	lpLump = (LPWAD3_LUMP)((unsigned int*)lpView_ + dwTableOffset);
 
 	bool	bFound = false;
 	unsigned int	j = 0;
@@ -101,7 +102,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 				}
 
 				// Point at the mip
-				lpMip = ( LPWAD3_MIP )( ( LPunsigned char )lpView_ + dwFilePos );
+				lpMip = ( LPWAD3_MIP )( ( unsigned int* )lpView_ + dwFilePos );
 
 				strcpy ( pTexture->name, pacTexture_ );
 
