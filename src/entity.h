@@ -12,6 +12,12 @@ public:
 	double	tex[ 2 ];
 };
 
+class Triangle
+{
+public:
+	Vertex vertex[3];
+};
+
 
 class Poly
 {
