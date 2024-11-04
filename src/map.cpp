@@ -40,11 +40,10 @@ bool MAPFile::buffer_read(char *byte){
 
 	
 	*byte = buffer[selected_byte];
-	selected_byte += 1;
-
 	if(selected_byte >= buffer.size()){
 		return false;
 	}
+	selected_byte += 1;
 
 	return true;
 }
@@ -1014,7 +1013,7 @@ MAPFile::Result MAPFile::GetToken()
 
 		if (!buffer_read(&c))
 		{
-			return RESULT_FAIL;
+			return RESULT_EOF;
 		}
 
 		//

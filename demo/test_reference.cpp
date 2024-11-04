@@ -20,7 +20,37 @@ int main()
     Entity *entitys = NULL;
     Texture *textures = NULL;
 
-    map.Load("map.map",&entitys,&textures);
+    if(!map.Load("map.map",&entitys,&textures)){
+        std::cout << "error!\n";
+        return 0;
+    }
+
+    
+    Entity *e = entitys;
+    while(e != NULL){
+
+        std::cout << "{\n";
+
+        //Property
+
+        Property *properties = e->GetProperties();
+        Property *p = properties;
+
+        while(p != NULL){
+            std::cout << "  " << p->GetName() << " " << p->GetValue() << std::endl;
+            p = p->GetNext();
+        }
+
+        //
+
+        e = e->GetNext();
+
+        std::cout << "}\n";
+    }
+
+    
+
+    std::cout << "Baye World!\n";
     
     return 0;
 }
