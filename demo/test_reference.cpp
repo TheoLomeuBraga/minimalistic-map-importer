@@ -30,8 +30,8 @@ int main()
 
         std::cout << "{\n";
 
-        //Property
 
+        //Property
         Property *p = e->GetProperties();
 
         while(p != NULL){
@@ -41,12 +41,26 @@ int main()
             p = p->GetNext();
         }
 
+        //poly
+        Poly *po = e->GetPolys();
+
+        while(po != NULL){
+            
+            std::cout << "{ texture: " << po->TextureID << "} ";
+
+            for(unsigned int i = 0; i < po->GetNumberOfVertices() ; i++){
+                Vertex v = po->verts[i];
+                std::cout << "{ position: " << v.p.x << " , " << v.p.y << " , " << v.p.z << " , " << "} ";
+                std::cout << "{ uv: " << v.tex[0] << " , " << v.tex[1] << "} ";
+            }
+            
+            po = po->GetNext();
+        }
+
         e = e->GetNext();
 
         std::cout << "}\n";
     }
-
-    
 
     std::cout << "Baye World!\n";
     

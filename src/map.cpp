@@ -288,7 +288,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 	bool bFound = false;
 
 	// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-	std::cout << "texture name: " << m_acToken << " size:" << std::string(m_acToken).size() << std::endl;
+	//std::cout << "texture name: " << m_acToken << " size:" << std::string(m_acToken).size() << std::endl;
 	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 	pFace->pTexture = m_acToken;
@@ -755,11 +755,11 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 {
 
 	Result result = GetToken();
-	std::cout << m_acToken << std::endl;
+	//std::cout << m_acToken << std::endl;
 	f[0] = atof(m_acToken);
 
 	result = GetToken();
-	std::cout << m_acToken << std::endl;
+	//std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -769,7 +769,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	f[1] = atof(m_acToken);
 
 	result = GetToken();
-	std::cout << m_acToken << std::endl;
+	//std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -779,7 +779,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	f[2] = atof(m_acToken);
 
 	result = GetToken();
-	std::cout << m_acToken << std::endl;
+	//std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -789,7 +789,7 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	f[3] = atof(m_acToken);
 
 	result = GetToken();
-	std::cout << m_acToken << std::endl;
+	//std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
@@ -797,6 +797,8 @@ MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 	}
 
 	f[4] = atof(m_acToken);
+
+	//printf("%f %f %f %f %f \n",f[0],f[1],f[2],f[3],f[4]);
 
 	return RESULT_SUCCEED;
 }
