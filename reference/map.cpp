@@ -45,6 +45,17 @@ bool read_file(char *path, std::vector<char> *buffer = NULL)
 	return true;
 }
 
+bool MAPFile::buffer_jump(unsigned int jump,char *byte){
+
+	selected_byte += jump;
+	if(selected_byte < 0 || selected_byte >= buffer.size()){
+		return false;
+	}
+
+	*byte = buffer[selected_byte];
+	return true;
+}
+
 MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 {
 	//

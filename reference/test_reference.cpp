@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-// #include "map.h"
+#include "map.h"
 
 
 #include <vector>
@@ -15,6 +15,8 @@ int main()
 {
     std::cout << "Hello World!\n";
     MAPFile map;
-    //map.load("map.map")
+    Entity *entitys;
+    Texture *textures;
+    map.Load("map.map",&entitys,&textures);
     return 0;
 }

@@ -31,7 +31,7 @@ using namespace std;
 #include "math.h"
 #include "entity.h"
 #include "brush.h"
-
+#include <vector>
 
 ////////////////////////////////////////////////////////////////////
 // Classes
@@ -48,6 +48,11 @@ private:
 	char	m_acToken[ MAX_TOKEN_LENGTH + 1 ];
 
 	int	m_hFile;
+
+	std::vector<char> buffer;
+	unsigned int selected_byte;
+	bool buffer_jump(unsigned int jump,char *byte);
+
 
 	int		m_iWADFiles;
 	void	**m_pWAD;
