@@ -5,7 +5,7 @@
 // Entity member functions
 ////////////////////////////////////////////////////////////////////
 
-void Entity::WriteEntity ( ofstream &ofsFile_ ) const
+void Entity::WriteEntity ( std::ofstream &ofsFile_ ) const
 {
 /*	Entity:
 	x char		Entity class (zero terminated)

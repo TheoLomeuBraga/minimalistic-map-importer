@@ -1,11 +1,11 @@
 #include "map.h"
-
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////
 // Poly member functions
 ////////////////////////////////////////////////////////////////////
 
-void Poly::WritePoly ( ofstream &ofsFile_ ) const
+void Poly::WritePoly ( std::ofstream &ofsFile_ ) const
 {
 /*
 Polygon:
@@ -266,7 +266,7 @@ void Poly::SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ )
 	pFront->plane		= pPoly_->plane;
 	pBack->plane		= pPoly_->plane;
 
-	for ( i = 0; i < pPoly_->GetNumberOfVertices ( ); i++ )
+	for ( int i = 0; i < pPoly_->GetNumberOfVertices ( ); i++ )
 	{
 		//
 		// Add point to appropriate list
@@ -365,7 +365,7 @@ void Poly::CalculateTextureCoordinates ( int texWidth, int texHeight, Plane texA
 	bool	bDoU = true;
 	bool	bDoV = true;
 
-	for ( i = 0; i < GetNumberOfVertices ( ); i++ )
+	for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
 	{
 		if ( ( verts[ i ].tex[ 0 ] < 1 ) && ( verts[ i ].tex[ 0 ] > -1 ) )
 		{
@@ -413,7 +413,7 @@ void Poly::CalculateTextureCoordinates ( int texWidth, int texHeight, Plane texA
 			}
 		}
 
-		for ( i = 0; i < GetNumberOfVertices ( ); i++ )
+		for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
 		{
 			if ( bDoU )
 			{
@@ -453,7 +453,7 @@ void Poly::CalculateTextureCoordinates ( int texWidth, int texHeight, Plane texA
 		//
 		// Normalize texture coordinates
 		//
-		for ( i = 0; i < GetNumberOfVertices ( ); i++ )
+		for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
 		{
 			verts[ i ].tex[ 0 ] = verts[ i ].tex[ 0 ] - NearestU;
 			verts[ i ].tex[ 1 ] = verts[ i ].tex[ 1 ] - NearestV;
@@ -479,7 +479,7 @@ void Poly::SortVerticesCW ( )
 	//
 	// Sort vertices
 	//
-	for ( i = 0; i < GetNumberOfVertices ( ) - 2; i++ )
+	for ( int i = 0; i < GetNumberOfVertices ( ) - 2; i++ )
 	{
 		Vector3	a;
 		Plane	p;
@@ -513,7 +513,7 @@ void Poly::SortVerticesCW ( )
 
 		if ( Smallest == -1 )
 		{
-			cout << "Error: Degenerate polygon!" << endl;
+			std::cout << "Error: Degenerate polygon!" << std::endl;
 
 			abort ( );
 		}
@@ -552,7 +552,7 @@ bool Poly::CalculatePlane ( )
 
     if ( GetNumberOfVertices ( ) < 3 )
 	{
-		cout << "Polygon has less than 3 vertices!" << endl;
+		std::cout << "Polygon has less than 3 vertices!" << std::endl;
 
 		return false;
 	}

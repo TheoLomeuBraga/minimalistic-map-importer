@@ -1,11 +1,11 @@
 #include "map.h"
-
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////
 // Property member functions
 ////////////////////////////////////////////////////////////////////
 
-void Property::WriteProperty ( ofstream &ofsFile_ ) const
+void Property::WriteProperty ( std::ofstream &ofsFile_ ) const
 {
 /*	Property:
 	x char		Property name (zero terminated)

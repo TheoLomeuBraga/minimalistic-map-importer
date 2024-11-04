@@ -15,8 +15,6 @@ const unsigned int MAX_TEXTURE_LENGTH	= 16;
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 #ifdef _DEBUG
 #include <crtdbg.h>
 
@@ -47,12 +45,10 @@ private:
 
 	char	m_acToken[ MAX_TOKEN_LENGTH + 1 ];
 
-	int	m_hFile;
-
 	std::vector<char> buffer;
 	unsigned int selected_byte;
 	bool buffer_jump(unsigned int jump,char *byte);
-
+	bool buffer_read(char *byte);
 
 	int		m_iWADFiles;
 	void	**m_pWAD;

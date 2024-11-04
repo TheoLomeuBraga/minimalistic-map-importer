@@ -14,9 +14,13 @@
 int main()
 {
     std::cout << "Hello World!\n";
+    
     MAPFile map;
-    Entity *entitys;
-    Texture *textures;
+    
+    Entity *entitys = NULL;
+    Texture *textures = NULL;
+
     map.Load("map.map",&entitys,&textures);
+    
     return 0;
 }

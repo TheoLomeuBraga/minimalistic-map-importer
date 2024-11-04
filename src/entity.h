@@ -62,7 +62,7 @@ public:
 	void AddVertex ( Vertex &Vertex_ );
 	void AddPoly ( Poly *pPoly_ );
 	void SetNext ( Poly *pPoly_ );
-	void WritePoly ( ofstream &ofsFile_ ) const;
+	void WritePoly ( std::ofstream &ofsFile_ ) const;
 
 	bool CalculatePlane ( );
 	void SortVerticesCW ( );
@@ -99,7 +99,7 @@ public:
 	void SetName ( const char *pacName_ );
 	void SetValue ( const char *pacValue_ );
 	void SetNext ( Property *pProperty_ );
-	void WriteProperty ( ofstream &ofsFile_ ) const;
+	void WriteProperty ( std::ofstream &ofsFile_ ) const;
 
 	bool IsLast ( ) const;
 
@@ -126,7 +126,7 @@ public:
 	void AddEntity ( Entity *pEntity_ );
 	void AddProperty ( Property *pProperty_ );
 	void AddPoly ( Poly *pPoly_ );
-	void WriteEntity ( ofstream& ofsFile_ ) const;
+	void WriteEntity ( std::ofstream& ofsFile_ ) const;
 
 	bool IsLast ( ) const;
 

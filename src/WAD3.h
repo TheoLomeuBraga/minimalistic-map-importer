@@ -3,8 +3,6 @@
 // WAD3 (Half-Life) Header and mip structs
 #include <iostream>
 
-using namespace std;
-
 #define WAD3_TYPE_MIP	0x43
 #define WAD3_ID			('W' | 'A' << 8 | 'D' << 16 | '3' << 24)
 #define GET_MIP_DATA_SIZE(WIDTH, HEIGHT)		(sizeof(WAD3_MIP) + (WIDTH * HEIGHT) + (WIDTH * HEIGHT / 4) + (WIDTH * HEIGHT / 16) + (WIDTH * HEIGHT / 64))
@@ -60,8 +58,6 @@ typedef struct
 	unsigned int		offsets[4];		// four mip maps stored
 } WAD3_MIP, *LPWAD3_MIP;
 
-extern void MapFile( const char* szFileName, void **pView, unsigned int pdwFileSize);
-extern int CorruptWAD3( const char* szErrorMessage, void* lpView);
 /*
 class CWADException
 {

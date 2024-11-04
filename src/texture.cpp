@@ -1,6 +1,6 @@
 #include "map.h"
 #include "WAD3.h"
-#include <string.h>
+#include <cstring>
 
 
 ////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 	//
 	// Check if texture already exists
 	//
-	if ( stricmp ( name, pacTexture_ ) == 0 )
+	if ( strncmp ( name, pacTexture_ ,MAX_TEXTURE_LENGTH + 1) == 0 )
 	{
 		rResult_ = eGT::GT_FOUND;
 
@@ -44,8 +44,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 
 	// Make sure it's at least big enough to manipulate the header
 	if (dwFileSize_ < sizeof(WAD3_HEADER))
-	{		
-		CorruptWAD3( "WAD3 file is malformed.", lpView_);
+	{
 
 		delete pTexture;
 
@@ -56,7 +55,6 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 
 	if (lpHeader->identification != WAD3_ID)
 	{
-		CorruptWAD3( "Invalid WAD3 header id.", lpView_);
 
 		delete pTexture;
 
@@ -69,7 +67,6 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 	// Make sure our table is really there
 	if ( ((dwNumLumps * sizeof(WAD3_LUMP)) + dwTableOffset) > dwFileSize_)
 	{
-		CorruptWAD3( "WAD3 file is malformed.", lpView_);
 
 		delete pTexture;
 
@@ -86,7 +83,7 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 	{		
 		if ( lpLump->type == WAD3_TYPE_MIP)
 		{
-			if ( stricmp ( lpLump->name, pacTexture_ ) == 0 )
+			if ( strncmp ( lpLump->name, pacTexture_,16 ) == 0 )
 			{
 				// Find out where the MIP actually is
 				dwFilePos = lpLump->filepos;
@@ -94,7 +91,6 @@ Texture* Texture::GetTexture ( char *pacTexture_, void* lpView_, unsigned int dw
 				// Make sure it's in bounds
 				if ( dwFilePos >= dwFileSize_ )
 				{
-					CorruptWAD3( "Invalid lump entry; filepos is malformed.", lpView_ );
 
 					delete pTexture;
 

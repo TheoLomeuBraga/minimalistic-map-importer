@@ -14,22 +14,38 @@
 #include <cmath>
 #include <cstring>
 
-using namespace std;
-
 #include "read_file_bytes.h"
 #include "map.h"
 #include "WAD3.h"
 
+//createFile = read_file
+//ReadFile = buffer_read
+//SetFilePointer = buffer_jump
 
-
-bool MAPFile::buffer_jump(unsigned int jump,char *byte){
+bool MAPFile::buffer_jump(unsigned int jump,char *byte = NULL){
 
 	selected_byte += jump;
 	if(selected_byte < 0 || selected_byte >= buffer.size()){
 		return false;
 	}
 
+	if(byte != NULL){
+		*byte = buffer[selected_byte];
+	}
+	
+	return true;
+}
+
+bool MAPFile::buffer_read(char *byte){
+
+	
 	*byte = buffer[selected_byte];
+	selected_byte += 1;
+
+	if(selected_byte >= buffer.size()){
+		return false;
+	}
+
 	return true;
 }
 
@@ -62,7 +78,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 
 	if (strcmp("{", m_acToken) != 0)
 	{
-		cout << "Expected:\t{\nFound:\t" << m_acToken << endl;
+		std::cout << "Expected:\t{\nFound:\t" << m_acToken << std::endl;
 
 		return RESULT_FAIL;
 	}
@@ -77,9 +93,9 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 		char c = 0;
 		unsigned int dwRead = 0;
 
-		if (ReadFile(m_hFile, &c, 1, &dwRead, NULL) == FALSE)
+		if (!buffer_read(&c))
 		{
-			cout << "File read error!" << endl;
+			std::cout << "File read error!" << std::endl;
 
 			delete pEntity;
 			pEntity = NULL;
@@ -87,7 +103,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 			return RESULT_FAIL;
 		}
 
-		SetFilePointer(m_hFile, -1, NULL, FILE_CURRENT);
+		buffer_jump(-1);
 
 		if (c == '"')
 		{ // Property
@@ -97,7 +113,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 
 			if (result != RESULT_SUCCEED)
 			{
-				cout << "Error parsing property!" << endl;
+				std::cout << "Error parsing property!" << std::endl;
 
 				delete pEntity;
 				pEntity = NULL;
@@ -115,7 +131,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 
 			if (result != RESULT_SUCCEED)
 			{
-				cout << "Error parsing brush!" << endl;
+				std::cout << "Error parsing brush!" << std::endl;
 
 				delete pEntity;
 				pEntity = NULL;
@@ -181,7 +197,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 		}
 		else
 		{ // Error
-			cout << "Expected:\t\", {, or }\nFound:\t" << c << endl;
+			std::cout << "Expected:\t\", {, or }\nFound:\t" << c << std::endl;
 
 			delete pEntity;
 			pEntity = NULL;
@@ -197,7 +213,7 @@ MAPFile::Result MAPFile::ParseEntity(Entity **ppEntity_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading entity!" << endl;
+		std::cout << "Error reading entity!" << std::endl;
 
 		delete pEntity;
 		pEntity = NULL;
@@ -236,7 +252,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 		if (result != RESULT_SUCCEED)
 		{
-			cout << "Error reading plane definition!" << endl;
+			std::cout << "Error reading plane definition!" << std::endl;
 
 			delete pFace;
 			pFace = NULL;
@@ -256,7 +272,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading texture name!" << endl;
+		std::cout << "Error reading texture name!" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -328,7 +344,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	if (!bFound)
 	{
-		cout << "Unable to find texture " << m_acToken << "!" << endl;
+		std::cout << "Unable to find texture " << m_acToken << "!" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -349,7 +365,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 		if (result != RESULT_SUCCEED)
 		{
-			cout << "Error reading texture axis! (Wrong WorldCraft version?)" << endl;
+			std::cout << "Error reading texture axis! (Wrong WorldCraft version?)" << std::endl;
 
 			delete pFace;
 			pFace = NULL;
@@ -367,7 +383,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading rotation!" << endl;
+		std::cout << "Error reading rotation!" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -382,7 +398,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading U scale!" << endl;
+		std::cout << "Error reading U scale!" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -396,7 +412,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading V scale!" << endl;
+		std::cout << "Error reading V scale!" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -410,7 +426,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading face!" << endl;
+		std::cout << "Error reading face!" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -441,14 +457,14 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading brush!" << endl;
+		std::cout << "Error reading brush!" << std::endl;
 
 		return RESULT_FAIL;
 	}
 
 	if (strcmp("{", m_acToken))
 	{
-		cout << "Expected:\t{\nFound:\t" << m_acToken << endl;
+		std::cout << "Expected:\t{\nFound:\t" << m_acToken << std::endl;
 
 		return RESULT_FAIL;
 	}
@@ -465,9 +481,9 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 		char c = 0;
 		unsigned int dwRead = 0;
 
-		if (ReadFile(m_hFile, &c, 1, &dwRead, NULL) == FALSE)
+		if (!buffer_read(&c))
 		{
-			cout << "Error reading brush!" << endl;
+			std::cout << "Error reading brush!" << std::endl;
 
 			delete pBrush;
 			pBrush = NULL;
@@ -481,7 +497,7 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 			return RESULT_FAIL;
 		}
 
-		SetFilePointer(m_hFile, -1, NULL, FILE_CURRENT);
+		buffer_jump(-1);
 
 		if (c == '(')
 		{ // Face
@@ -491,7 +507,7 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 
 			if (result != RESULT_SUCCEED)
 			{
-				cout << "Error parsing face!" << endl;
+				std::cout << "Error parsing face!" << std::endl;
 
 				delete pBrush;
 				pBrush = NULL;
@@ -522,7 +538,7 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 		}
 		else
 		{
-			cout << "Expected:\t( or }\nFound:\t" << c << endl;
+			std::cout << "Expected:\t( or }\nFound:\t" << c << std::endl;
 
 			delete pBrush;
 			pBrush = NULL;
@@ -541,7 +557,7 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading brush!" << endl;
+		std::cout << "Error reading brush!" << std::endl;
 
 		delete pBrush;
 		pBrush = NULL;
@@ -604,7 +620,7 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading property name!" << endl;
+		std::cout << "Error reading property name!" << std::endl;
 
 		return RESULT_FAIL;
 	}
@@ -620,7 +636,7 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 
 		if (result != RESULT_SUCCEED)
 		{
-			cout << "Error reading value of " << pProperty->GetName() << "!" << endl;
+			std::cout << "Error reading value of " << pProperty->GetName() << "!" << std::endl;
 
 			delete pProperty;
 			pProperty = NULL;
@@ -630,7 +646,7 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 
 		if (strcmp("220", m_acToken) != 0)
 		{
-			cout << "Wrong map version!" << endl;
+			std::cout << "Wrong map version!" << std::endl;
 
 			delete pProperty;
 			return RESULT_FAIL;
@@ -653,7 +669,7 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 
 		if (result != RESULT_SUCCEED)
 		{
-			cout << "Error reading value of " << pProperty->GetName() << "!" << endl;
+			std::cout << "Error reading value of " << pProperty->GetName() << "!" << std::endl;
 
 			delete pProperty;
 			pProperty = NULL;
@@ -697,7 +713,14 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 					delete[] pOldSize;
 				}
 
-				MapFile(m_acToken, &m_pWAD[m_iWADFiles], &m_pWADSize[m_iWADFiles]);
+				//MapFile(m_acToken, &m_pWAD[m_iWADFiles], &m_pWADSize[m_iWADFiles]);
+
+				std::vector<char> buffer;
+				read_file(&m_acToken[0], &buffer);
+				m_pWADSize[m_iWADFiles] = buffer.size();
+				m_pWAD[m_iWADFiles] = static_cast<void*>(buffer.data());
+
+				
 
 				iToken = 0;
 				m_iWADFiles++;
@@ -724,7 +747,7 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 
 	if (result != RESULT_SUCCEED)
 	{
-		cout << "Error reading value of " << pProperty->GetName() << "!" << endl;
+		std::cout << "Error reading value of " << pProperty->GetName() << "!" << std::endl;
 
 		delete pProperty;
 		pProperty = NULL;
@@ -744,6 +767,7 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 	//
 	// Check if parameters are valid
 	//
+	
 	if (pcFile_ == NULL)
 	{
 		return false;
@@ -760,6 +784,8 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 		*ppEntities_ = NULL;
 	}
 
+	
+
 	m_pWAD = NULL;
 	m_pWADSize = NULL;
 	m_pTextureList = NULL;
@@ -773,12 +799,17 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 	//
 	// Open .MAP file
 	//
-	m_hFile = CreateFile(pcFile_, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
-	if (m_hFile == INVALID_HANDLE_VALUE)
-	{ // Failed to open file
+	
+
+	selected_byte = 0;
+	if (!read_map_file(pcFile_,&buffer))
+	{ 
+		std::cout << "File read file error!" << std::endl;
 		return false;
 	}
+
+	
 
 	//
 	// Parse file
@@ -796,7 +827,6 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 		}
 		else if (result == RESULT_FAIL)
 		{
-			CloseHandle(m_hFile);
 
 			if (pEntity != NULL)
 			{
@@ -808,11 +838,6 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 			{
 				delete pEntityList;
 				pEntityList = NULL;
-			}
-
-			for (int i = 0; i < m_iWADFiles; i++)
-			{
-				UnmapViewOfFile(m_pWAD[i]);
 			}
 
 			delete[] m_pWAD;
@@ -837,19 +862,12 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 	//
 	// Clean up and return
 	//
-	cout << "Entities:\t" << m_iEntities << endl;
-	cout << "Polygons:\t" << m_iPolygons << endl;
-	cout << "Textures:\t" << m_iTextures << endl;
-
-	for (int i = 0; i < m_iWADFiles; i++)
-	{
-		UnmapViewOfFile(m_pWAD[i]);
-	}
+	std::cout << "Entities: " << m_iEntities << std::endl;
+	std::cout << "Polygons: " << m_iPolygons << std::endl;
+	std::cout << "Textures: " << m_iTextures << std::endl;
 
 	delete[] m_pWAD;
 	delete[] m_pWADSize;
-
-	CloseHandle(m_hFile);
 
 	*ppEntities_ = pEntityList;
 	*ppTextures_ = m_pTextureList;
@@ -988,16 +1006,10 @@ MAPFile::Result MAPFile::GetToken()
 
 	while (i <= MAX_TOKEN_LENGTH)
 	{
-		dwRead = 0;
 
-		if (ReadFile(m_hFile, &c, 1, &dwRead, NULL) == 0)
+		if (!buffer_read(&c))
 		{
 			return RESULT_FAIL;
-		}
-
-		if (dwRead == 0)
-		{
-			return RESULT_EOF;
 		}
 
 		//
@@ -1036,7 +1048,7 @@ MAPFile::Result MAPFile::GetString()
 	//
 	// Read first "
 	//
-	if (ReadFile(m_hFile, &c, 1, &dwRead, NULL) == FALSE)
+	if (!buffer_read(&c))
 	{
 		if (dwRead == 0)
 		{
@@ -1051,7 +1063,7 @@ MAPFile::Result MAPFile::GetString()
 	//
 	while (i <= MAX_TOKEN_LENGTH)
 	{
-		if (ReadFile(m_hFile, &c, 1, &dwRead, NULL) == FALSE)
+		if (!buffer_read(&c))
 		{
 			return RESULT_FAIL;
 		}
