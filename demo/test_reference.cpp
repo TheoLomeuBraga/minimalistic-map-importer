@@ -28,6 +28,7 @@ int main() {
     int vertexIndex = 1; // Para rastrear o índice do vértice para as faces
 
     // Itera pelas entidades
+    int eid = 0;
     Entity* e = entities;
     while (e != NULL) {
 
@@ -49,6 +50,7 @@ int main() {
 
                     // Escreve as coordenadas de textura do vértice
                     objFile << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
+                    //std::cout << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
                 }
 
                 // Escreve a face usando os índices dos três vértices do triângulo
@@ -63,7 +65,7 @@ int main() {
 
             po = po->GetNext();
         }
-
+        
         e = e->GetNext();
     }
 

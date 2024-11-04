@@ -5,60 +5,85 @@
 // Poly member functions
 ////////////////////////////////////////////////////////////////////
 
-void Poly::WritePoly ( std::ofstream &ofsFile_ ) const
+void Poly::WritePoly(std::ofstream &ofsFile_) const
 {
-/*
-Polygon:
-	1 uint		Texture ID
-	1 Plane		Polygon plane
-	1 uint		Number of vertices
-	x Vertex	Vertices
-*/
+	/*
+	Polygon:
+		1 uint		Texture ID
+		1 Plane		Polygon plane
+		1 uint		Number of vertices
+		x Vertex	Vertices
+	*/
 
-	ofsFile_.write ( ( char * )&TextureID, sizeof ( unsigned int ) );
-	ofsFile_.write ( ( char * )&plane.n.x, sizeof ( double ) );
-	ofsFile_.write ( ( char * )&plane.n.y, sizeof ( double ) );
-	ofsFile_.write ( ( char * )&plane.n.z, sizeof ( double ) );
-	ofsFile_.write ( ( char * )&plane.d, sizeof ( double ) );
+	ofsFile_.write((char *)&TextureID, sizeof(unsigned int));
+	ofsFile_.write((char *)&plane.n.x, sizeof(double));
+	ofsFile_.write((char *)&plane.n.y, sizeof(double));
+	ofsFile_.write((char *)&plane.n.z, sizeof(double));
+	ofsFile_.write((char *)&plane.d, sizeof(double));
 
-	unsigned int ui = ( unsigned int )GetNumberOfVertices ( );
+	unsigned int ui = (unsigned int)GetNumberOfVertices();
 
-	ofsFile_.write ( ( char * )&ui, sizeof ( ui ) );
+	ofsFile_.write((char *)&ui, sizeof(ui));
 
-	for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
+	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
-		ofsFile_.write ( ( char * )&verts[ i ].p.x, sizeof ( double ) );
-		ofsFile_.write ( ( char * )&verts[ i ].p.y, sizeof ( double ) );
-		ofsFile_.write ( ( char * )&verts[ i ].p.z, sizeof ( double ) );
-		ofsFile_.write ( ( char * )&verts[ i ].tex[ 0 ], sizeof ( double ) );
-		ofsFile_.write ( ( char * )&verts[ i ].tex[ 1 ], sizeof ( double ) );
+		ofsFile_.write((char *)&verts[i].p.x, sizeof(double));
+		ofsFile_.write((char *)&verts[i].p.y, sizeof(double));
+		ofsFile_.write((char *)&verts[i].p.z, sizeof(double));
+		ofsFile_.write((char *)&verts[i].tex[0], sizeof(double));
+		ofsFile_.write((char *)&verts[i].tex[1], sizeof(double));
 	}
 
-	if ( !IsLast ( ) )
+	if (!IsLast())
 	{
-		GetNext ( )->WritePoly ( ofsFile_ );
+		GetNext()->WritePoly(ofsFile_);
 	}
 }
 
+std::vector<Triangle> Poly::convert_to_triangles() {
+    std::vector<Triangle> triangles;
 
-const bool Poly::operator == ( const Poly &arg_ ) const
+    
+    if (GetNumberOfVertices() < 3) {
+        return triangles;
+    }
+
+    for (int i = 1; i < GetNumberOfVertices() - 1; ++i) {
+        Triangle triangle;
+		
+        triangle.vertex[0] = verts[0];
+		triangle.vertex[0].p.x = -triangle.vertex[0].p.x;
+		
+        triangle.vertex[1] = verts[i];
+		triangle.vertex[1].p.x = -triangle.vertex[1].p.x;
+
+        triangle.vertex[2] = verts[i + 1];
+		triangle.vertex[2].p.x = -triangle.vertex[2].p.x;
+		
+        triangles.push_back(triangle);
+    }
+
+    return triangles;
+}
+
+const bool Poly::operator==(const Poly &arg_) const
 {
-	if ( m_iNumberOfVertices == arg_.m_iNumberOfVertices )
+	if (m_iNumberOfVertices == arg_.m_iNumberOfVertices)
 	{
-		if ( plane.d == arg_.plane.d )
+		if (plane.d == arg_.plane.d)
 		{
-			if ( plane.n == arg_.plane.n )
+			if (plane.n == arg_.plane.n)
 			{
-				for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
+				for (int i = 0; i < GetNumberOfVertices(); i++)
 				{
-					if ( verts[ i ].p == arg_.verts[ i ].p )
+					if (verts[i].p == arg_.verts[i].p)
 					{
-						if ( verts[ i ].tex[ 0 ] != arg_.verts[ i ].tex[ 0 ] )
+						if (verts[i].tex[0] != arg_.verts[i].tex[0])
 						{
 							return false;
 						}
 
-						if ( verts[ i ].tex[ 1 ] != arg_.verts[ i ].tex[ 1 ] )
+						if (verts[i].tex[1] != arg_.verts[i].tex[1])
 						{
 							return false;
 						}
@@ -69,7 +94,7 @@ const bool Poly::operator == ( const Poly &arg_ ) const
 					}
 				}
 
-				if ( TextureID == arg_.TextureID )
+				if (TextureID == arg_.TextureID)
 				{
 					return true;
 				}
@@ -80,91 +105,93 @@ const bool Poly::operator == ( const Poly &arg_ ) const
 	return false;
 }
 
-
-Poly *Poly::ClipToList ( Poly *pPoly_, bool bClipOnPlane_ )
+Poly *Poly::ClipToList(Poly *pPoly_, bool bClipOnPlane_)
 {
-	switch ( ClassifyPoly ( pPoly_ ) )
+	switch (ClassifyPoly(pPoly_))
 	{
 	case eCP::FRONT:
-		{
-			return pPoly_->CopyPoly ( );
-		} break;
+	{
+		return pPoly_->CopyPoly();
+	}
+	break;
 
 	case eCP::BACK:
+	{
+		if (IsLast())
 		{
-			if ( IsLast ( ) )
-			{
-				return NULL;
-			}
+			return NULL;
+		}
 
-			return m_pNext->ClipToList ( pPoly_, bClipOnPlane_ );
-		} break;
+		return m_pNext->ClipToList(pPoly_, bClipOnPlane_);
+	}
+	break;
 
 	case eCP::ONPLANE:
+	{
+		double Angle = plane.n.Dot(pPoly_->plane.n) - 1;
+
+		if ((Angle < epsilon) && (Angle > -epsilon))
 		{
-			double	Angle = plane.n.Dot ( pPoly_->plane.n ) - 1;
-
-			if ( ( Angle < epsilon ) && ( Angle > -epsilon ) )
+			if (!bClipOnPlane_)
 			{
-				if ( !bClipOnPlane_ )
-				{
-					return pPoly_->CopyPoly ( );
-				}
+				return pPoly_->CopyPoly();
 			}
+		}
 
-			if ( IsLast ( ) )
-			{
-				return NULL;
-			}
+		if (IsLast())
+		{
+			return NULL;
+		}
 
-			return m_pNext->ClipToList ( pPoly_, bClipOnPlane_ );
-		} break;
+		return m_pNext->ClipToList(pPoly_, bClipOnPlane_);
+	}
+	break;
 
 	case eCP::SPLIT:
+	{
+		Poly *pFront = NULL;
+		Poly *pBack = NULL;
+
+		SplitPoly(pPoly_, &pFront, &pBack);
+
+		if (IsLast())
 		{
-			Poly *pFront	= NULL;
-			Poly *pBack		= NULL;
-
-			SplitPoly ( pPoly_, &pFront, &pBack );
-
-			if ( IsLast ( ) )
-			{
-				delete pBack;
-
-				return pFront;
-			}
-
-			Poly *pBackFrags = m_pNext->ClipToList ( pBack, bClipOnPlane_ );
-
-			if ( pBackFrags == NULL )
-			{
-				delete pBack;
-
-				return pFront;
-			}
-
-			if ( *pBackFrags == *pBack )
-			{
-				delete pFront;
-				delete pBack;
-				delete pBackFrags;
-
-				return pPoly_->CopyPoly ( );
-			}
-
 			delete pBack;
 
-			pFront->AddPoly ( pBackFrags );
+			return pFront;
+		}
+
+		Poly *pBackFrags = m_pNext->ClipToList(pBack, bClipOnPlane_);
+
+		if (pBackFrags == NULL)
+		{
+			delete pBack;
 
 			return pFront;
-		} break;
+		}
+
+		if (*pBackFrags == *pBack)
+		{
+			delete pFront;
+			delete pBack;
+			delete pBackFrags;
+
+			return pPoly_->CopyPoly();
+		}
+
+		delete pBack;
+
+		pFront->AddPoly(pBackFrags);
+
+		return pFront;
+	}
+	break;
 	}
 
 	return NULL;
 }
 
-
-Poly *Poly::CopyPoly ( ) const
+Poly *Poly::CopyPoly() const
 {
 	Poly *pPoly = new Poly;
 
@@ -173,14 +200,13 @@ Poly *Poly::CopyPoly ( ) const
 	pPoly->m_iNumberOfVertices = m_iNumberOfVertices;
 	pPoly->plane = plane;
 
-	pPoly->verts = new Vertex[ m_iNumberOfVertices ];
-	memcpy ( pPoly->verts, verts, sizeof ( Vertex ) * m_iNumberOfVertices );
+	pPoly->verts = new Vertex[m_iNumberOfVertices];
+	memcpy(pPoly->verts, verts, sizeof(Vertex) * m_iNumberOfVertices);
 
 	return pPoly;
 }
 
-
-Poly *Poly::CopyList ( ) const
+Poly *Poly::CopyList() const
 {
 	Poly *pPoly = new Poly;
 
@@ -189,39 +215,38 @@ Poly *Poly::CopyList ( ) const
 	pPoly->m_iNumberOfVertices = m_iNumberOfVertices;
 	pPoly->plane = plane;
 
-	pPoly->verts = new Vertex[ m_iNumberOfVertices ];
-	memcpy ( pPoly->verts, verts, sizeof ( Vertex ) * m_iNumberOfVertices );
+	pPoly->verts = new Vertex[m_iNumberOfVertices];
+	memcpy(pPoly->verts, verts, sizeof(Vertex) * m_iNumberOfVertices);
 
-	if ( !IsLast ( ) )
+	if (!IsLast())
 	{
-		pPoly->AddPoly ( m_pNext->CopyList ( ) );
+		pPoly->AddPoly(m_pNext->CopyList());
 	}
 
 	return pPoly;
 }
 
-
-Poly::eCP Poly::ClassifyPoly ( Poly *pPoly_ )
+Poly::eCP Poly::ClassifyPoly(Poly *pPoly_)
 {
-	bool	bFront = false, bBack = false;
-	double	dist;
+	bool bFront = false, bBack = false;
+	double dist;
 
-	for ( int i = 0; i < ( int )pPoly_->GetNumberOfVertices ( ); i++ )
+	for (int i = 0; i < (int)pPoly_->GetNumberOfVertices(); i++)
 	{
-		dist = plane.n.Dot ( pPoly_->verts[ i ].p ) + plane.d;
+		dist = plane.n.Dot(pPoly_->verts[i].p) + plane.d;
 
-		if ( dist > 0.001 )
+		if (dist > 0.001)
 		{
-			if ( bBack )
+			if (bBack)
 			{
 				return eCP::SPLIT;
 			}
 
 			bFront = true;
 		}
-		else if ( dist < -0.001 )
+		else if (dist < -0.001)
 		{
-			if ( bFront )
+			if (bFront)
 			{
 				return eCP::SPLIT;
 			}
@@ -230,11 +255,11 @@ Poly::eCP Poly::ClassifyPoly ( Poly *pPoly_ )
 		}
 	}
 
-	if ( bFront )
+	if (bFront)
 	{
 		return eCP::FRONT;
 	}
-	else if ( bBack )
+	else if (bBack)
 	{
 		return eCP::BACK;
 	}
@@ -242,142 +267,164 @@ Poly::eCP Poly::ClassifyPoly ( Poly *pPoly_ )
 	return eCP::ONPLANE;
 }
 
-
-void Poly::SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ )
+void Poly::SplitPoly(Poly *pPoly_, Poly **ppFront_, Poly **ppBack_)
 {
-	Plane::eCP	*pCP = new Plane::eCP[ pPoly_->GetNumberOfVertices ( ) ];
+	Plane::eCP *pCP = new Plane::eCP[pPoly_->GetNumberOfVertices()];
 
 	//
 	// Classify all points
 	//
-	for ( int i = 0; i < pPoly_->GetNumberOfVertices ( ); i++ )
+	for (int i = 0; i < pPoly_->GetNumberOfVertices(); i++)
 	{
-		pCP[ i ] = plane.ClassifyPoint ( pPoly_->verts[ i ].p );
+		pCP[i] = plane.ClassifyPoint(pPoly_->verts[i].p);
 	}
 
 	//
 	// Build fragments
 	//
-	Poly		*pFront = new Poly;
-	Poly		*pBack	= new Poly;
+	Poly *pFront = new Poly;
+	Poly *pBack = new Poly;
 
-	pFront->TextureID	= pPoly_->TextureID;
-	pBack->TextureID	= pPoly_->TextureID;
-	pFront->plane		= pPoly_->plane;
-	pBack->plane		= pPoly_->plane;
+	pFront->TextureID = pPoly_->TextureID;
+	pBack->TextureID = pPoly_->TextureID;
+	pFront->plane = pPoly_->plane;
+	pBack->plane = pPoly_->plane;
 
-	for ( int i = 0; i < pPoly_->GetNumberOfVertices ( ); i++ )
+	for (int i = 0; i < pPoly_->GetNumberOfVertices(); i++)
 	{
 		//
 		// Add point to appropriate list
 		//
-		switch ( pCP[ i ] )
+		switch (pCP[i])
 		{
 		case Plane::eCP::FRONT:
-			{
-				pFront->AddVertex ( pPoly_->verts[ i ] );
-			} break;
+		{
+			pFront->AddVertex(pPoly_->verts[i]);
+		}
+		break;
 
 		case Plane::eCP::BACK:
-			{
-				pBack->AddVertex ( pPoly_->verts[ i ] );
-			} break;
+		{
+			pBack->AddVertex(pPoly_->verts[i]);
+		}
+		break;
 
 		case Plane::eCP::ONPLANE:
-			{
-				pFront->AddVertex ( pPoly_->verts[ i ] );
-				pBack->AddVertex ( pPoly_->verts[ i ] );
-			} break;
+		{
+			pFront->AddVertex(pPoly_->verts[i]);
+			pBack->AddVertex(pPoly_->verts[i]);
+		}
+		break;
 		}
 
 		//
 		// Check if edges should be split
 		//
-		int		iNext	= i + 1;
-		bool	bIgnore	= false;
+		int iNext = i + 1;
+		bool bIgnore = false;
 
-		if ( i == ( pPoly_->GetNumberOfVertices ( ) - 1 ) )
+		if (i == (pPoly_->GetNumberOfVertices() - 1))
 		{
 			iNext = 0;
 		}
 
-		if ( ( pCP[ i ] == Plane::eCP::ONPLANE ) && ( pCP[ iNext ] != Plane::eCP::ONPLANE ) )
+		if ((pCP[i] == Plane::eCP::ONPLANE) && (pCP[iNext] != Plane::eCP::ONPLANE))
 		{
 			bIgnore = true;
 		}
-		else if ( ( pCP[ iNext ] == Plane::eCP::ONPLANE ) && ( pCP[ i ] != Plane::eCP::ONPLANE ) )
+		else if ((pCP[iNext] == Plane::eCP::ONPLANE) && (pCP[i] != Plane::eCP::ONPLANE))
 		{
 			bIgnore = true;
 		}
 
-		if ( ( !bIgnore ) && ( pCP[ i ] != pCP[ iNext ] ) )
+		if ((!bIgnore) && (pCP[i] != pCP[iNext]))
 		{
-			Vertex	v;	// New vertex created by splitting
-			double	p;	// Percentage between the two points
+			Vertex v; // New vertex created by splitting
+			double p; // Percentage between the two points
 
-			plane.GetIntersection ( pPoly_->verts[ i ].p, pPoly_->verts[ iNext ].p, v.p, p );
+			plane.GetIntersection(pPoly_->verts[i].p, pPoly_->verts[iNext].p, v.p, p);
 
-			v.tex[ 0 ] = pPoly_->verts[ iNext ].tex[ 0 ] - pPoly_->verts[ i ].tex[ 0 ];
-			v.tex[ 1 ] = pPoly_->verts[ iNext ].tex[ 1 ] - pPoly_->verts[ i ].tex[ 1 ];
+			v.tex[0] = pPoly_->verts[iNext].tex[0] - pPoly_->verts[i].tex[0];
+			v.tex[1] = pPoly_->verts[iNext].tex[1] - pPoly_->verts[i].tex[1];
 
-			v.tex[ 0 ] = pPoly_->verts[ i ].tex[ 0 ] + ( p * v.tex[ 0 ] );
-			v.tex[ 1 ] = pPoly_->verts[ i ].tex[ 1 ] + ( p * v.tex[ 1 ] );
+			v.tex[0] = pPoly_->verts[i].tex[0] + (p * v.tex[0]);
+			v.tex[1] = pPoly_->verts[i].tex[1] + (p * v.tex[1]);
 
-			pFront->AddVertex ( v );
-			pBack->AddVertex ( v );
+			pFront->AddVertex(v);
+			pBack->AddVertex(v);
 		}
 	}
 
-	delete [] pCP;
+	delete[] pCP;
 
-	pFront->CalculatePlane ( );
-	pBack->CalculatePlane ( );
+	pFront->CalculatePlane();
+	pBack->CalculatePlane();
 
 	*ppFront_ = pFront;
 	*ppBack_ = pBack;
 }
 
-
-void Poly::CalculateTextureCoordinates (float *f )
+void Poly::CalculateTextureCoordinates(float *f)
 {
 
-	
+	float Offset[2] = {f[0], f[1]};
+	float Rotation = f[2];
+	float Scale[2] = {f[3], f[4]};
+	const float cosTheta = cos(Rotation);
+	const float sinTheta = sin(Rotation);
 
-	float	Offset[ 2 ] = {f[0],f[1]};
-	float   Rotation = f[2];
-	float	Scale[ 2 ] = {f[3],f[4]};
-	float cosTheta = cos(Rotation);
-    float sinTheta = sin(Rotation);
+	// normal
 
-    for (int i = 0; i < GetNumberOfVertices(); i++) {
+	// uv
+	for (int i = 0; i < GetNumberOfVertices(); i++)
+	{
 
-		Vector3 rvp = Vector3::CalculateRelativePosition(verts[i].p, plane.n);
+		Vector3 pos = verts[i].p;
+
+		Vector3 uAxis, vAxis;
 		
-        float U = rvp.Dot(plane.n) * Scale[0] + Offset[0];
-        float V = rvp.Dot(plane.n) * Scale[1] + Offset[1];
-		
-        float rotatedU = U * cosTheta - V * sinTheta;
-        float rotatedV = U * sinTheta + V * cosTheta;
-		
-        verts[i].tex[0] = rotatedU;
-        verts[i].tex[1] = rotatedV;
-    }
+		if (fabs(plane.n.x) > fabs(plane.n.z))
+			uAxis = Vector3(-plane.n.y, plane.n.x, 0.0f);
+		else
+			uAxis = Vector3(0.0f, -plane.n.z, plane.n.y);
 
+		uAxis.Normalize();
+		vAxis = plane.n.Cross(uAxis);
+		vAxis.Normalize();
+
+		Vector3 relativePosition = pos - Vector3(plane.n.x * plane.d,plane.n.y * plane.d,plane.n.z * plane.d);
+		float u_coord = relativePosition.Dot(uAxis);
+		float v_coord = relativePosition.Dot(vAxis);
+
+		u_coord += Offset[0];
+		v_coord += Offset[1];
+
+		u_coord *= Scale[0] * 2;
+		v_coord *= Scale[1] * 2;
+
+		float rotatedU = u_coord * cosTheta - v_coord * sinTheta;
+		float rotatedV = u_coord * sinTheta + v_coord * cosTheta;
+
+		printf("uv: %f , %f\n",rotatedU,rotatedV);
+
+		verts[i].tex[0] = rotatedU;
+		verts[i].tex[1] = rotatedV;
+	}
 
 	//
 	// Check which axis should be normalized
 	//
-	bool	bDoU = true;
-	bool	bDoV = true;
+	bool bDoU = true;
+	bool bDoV = true;
 
-	for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
+	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
-		if ( ( verts[ i ].tex[ 0 ] < 1 ) && ( verts[ i ].tex[ 0 ] > -1 ) )
+		if ((verts[i].tex[0] < 1) && (verts[i].tex[0] > -1))
 		{
 			bDoU = false;
 		}
 
-		if ( ( verts[ i ].tex[ 1 ] < 1 ) && ( verts[ i ].tex[ 1 ] > -1 ) )
+		if ((verts[i].tex[1] < 1) && (verts[i].tex[1] > -1))
 		{
 			bDoV = false;
 		}
@@ -386,70 +433,70 @@ void Poly::CalculateTextureCoordinates (float *f )
 	//
 	// Calculate coordinate nearest to 0
 	//
-	if ( bDoU || bDoV )
+	if (bDoU || bDoV)
 	{
-		double	NearestU = 0;
-		double	U = verts[ 0 ].tex[ 0 ];
+		double NearestU = 0;
+		double U = verts[0].tex[0];
 
-		double	NearestV = 0;
-		double	V = verts[ 0 ].tex[ 1 ];
+		double NearestV = 0;
+		double V = verts[0].tex[1];
 
-		if ( bDoU )
+		if (bDoU)
 		{
-			if ( U > 1 )
+			if (U > 1)
 			{
-				NearestU = floor ( U );
+				NearestU = floor(U);
 			}
 			else
 			{
-				NearestU = ceil ( U );
+				NearestU = ceil(U);
 			}
 		}
 
-		if ( bDoV )
+		if (bDoV)
 		{
-			if ( V > 1 )
+			if (V > 1)
 			{
-				NearestV = floor ( V );
+				NearestV = floor(V);
 			}
 			else
 			{
-				NearestV = ceil ( V );
+				NearestV = ceil(V);
 			}
 		}
 
-		for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
+		for (int i = 0; i < GetNumberOfVertices(); i++)
 		{
-			if ( bDoU )
+			if (bDoU)
 			{
-				U = verts[ i ].tex[ 0 ];
+				U = verts[i].tex[0];
 
-				if ( fabs ( U ) < fabs ( NearestU ) )
+				if (fabs(U) < fabs(NearestU))
 				{
-					if ( U > 1 )
+					if (U > 1)
 					{
-						NearestU = floor ( U );
+						NearestU = floor(U);
 					}
 					else
 					{
-						NearestU = ceil ( U );
+						NearestU = ceil(U);
 					}
 				}
 			}
 
-			if ( bDoV )
+			if (bDoV)
 			{
-				V = verts[ i ].tex[ 1 ];
+				V = verts[i].tex[1];
 
-				if ( fabs ( V ) < fabs ( NearestV ) )
+				if (fabs(V) < fabs(NearestV))
 				{
-					if ( V > 1 )
+					if (V > 1)
 					{
-						NearestV = floor ( V );
+						NearestV = floor(V);
 					}
 					else
 					{
-						NearestV = ceil ( V );
+						NearestV = ceil(V);
 					}
 				}
 			}
@@ -458,167 +505,164 @@ void Poly::CalculateTextureCoordinates (float *f )
 		//
 		// Normalize texture coordinates
 		//
-		for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
+		for (int i = 0; i < GetNumberOfVertices(); i++)
 		{
-			verts[ i ].tex[ 0 ] = verts[ i ].tex[ 0 ] - NearestU;
-			verts[ i ].tex[ 1 ] = verts[ i ].tex[ 1 ] - NearestV;
+			verts[i].tex[0] = verts[i].tex[0] - NearestU;
+			verts[i].tex[1] = verts[i].tex[1] - NearestV;
 		}
 	}
 }
 
-
-void Poly::SortVerticesCW ( )
+void Poly::SortVerticesCW()
 {
 	//
 	// Calculate center of polygon
 	//
-	Vector3	center;
+	Vector3 center;
 
-	for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
+	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
-		center = center + verts[ i ].p;
+		center = center + verts[i].p;
 	}
 
-	center = center / GetNumberOfVertices ( );
+	center = center / GetNumberOfVertices();
 
 	//
 	// Sort vertices
 	//
-	for ( int i = 0; i < GetNumberOfVertices ( ) - 2; i++ )
+	for (int i = 0; i < GetNumberOfVertices() - 2; i++)
 	{
-		Vector3	a;
-		Plane	p;
-		double	SmallestAngle	= -1;
-		int		Smallest		= -1;
+		Vector3 a;
+		Plane p;
+		double SmallestAngle = -1;
+		int Smallest = -1;
 
-		a = verts[ i ].p - center;
-		a.Normalize ( );
+		a = verts[i].p - center;
+		a.Normalize();
 
-		p.PointsToPlane ( verts[ i ].p, center, center + plane.n );
+		p.PointsToPlane(verts[i].p, center, center + plane.n);
 
-		for ( int j = i + 1; j < GetNumberOfVertices ( ); j++ )
+		for (int j = i + 1; j < GetNumberOfVertices(); j++)
 		{
-			if ( p.ClassifyPoint ( verts[ j ].p ) != Plane::eCP::BACK )
+			if (p.ClassifyPoint(verts[j].p) != Plane::eCP::BACK)
 			{
-				Vector3	b;
-				double	Angle;
-				
-				b = verts[ j ].p - center;
-				b.Normalize ( );
+				Vector3 b;
+				double Angle;
 
-				Angle = a.Dot ( b );
+				b = verts[j].p - center;
+				b.Normalize();
 
-				if ( Angle > SmallestAngle )
+				Angle = a.Dot(b);
+
+				if (Angle > SmallestAngle)
 				{
-					SmallestAngle	= Angle;
-					Smallest		= j;
+					SmallestAngle = Angle;
+					Smallest = j;
 				}
 			}
 		}
 
-		if ( Smallest == -1 )
+		if (Smallest == -1)
 		{
 			std::cout << "Error: Degenerate polygon!" << std::endl;
 
-			abort ( );
+			abort();
 		}
 
-		Vertex	t			= verts[ Smallest ];
-		verts[ Smallest ]	= verts[ i + 1 ];
-		verts[ i + 1 ]		= t;
+		Vertex t = verts[Smallest];
+		verts[Smallest] = verts[i + 1];
+		verts[i + 1] = t;
 	}
 
 	//
 	// Check if vertex order needs to be reversed for back-facing polygon
 	//
-	Plane	oldPlane = plane;
+	Plane oldPlane = plane;
 
-	CalculatePlane ( );
+	CalculatePlane();
 
-	if ( plane.n.Dot ( oldPlane.n ) < 0 )
+	if (plane.n.Dot(oldPlane.n) < 0)
 	{
-		int j = GetNumberOfVertices ( );
+		int j = GetNumberOfVertices();
 
-		for ( int i = 0; i < j / 2; i++ )
+		for (int i = 0; i < j / 2; i++)
 		{
-			Vertex v			= verts[ i ];
-			verts[ i ]			= verts[ j - i - 1 ];
-			verts[ j - i - 1 ]	= v;
+			Vertex v = verts[i];
+			verts[i] = verts[j - i - 1];
+			verts[j - i - 1] = v;
 		}
 	}
 }
 
-
-bool Poly::CalculatePlane ( )
+bool Poly::CalculatePlane()
 {
-    Vector3	centerOfMass;
-    double	magnitude;
-    int     i, j;
+	Vector3 centerOfMass;
+	double magnitude;
+	int i, j;
 
-    if ( GetNumberOfVertices ( ) < 3 )
+	if (GetNumberOfVertices() < 3)
 	{
 		std::cout << "Polygon has less than 3 vertices!" << std::endl;
 
 		return false;
 	}
 
-    plane.n.x		= 0.0f;
-    plane.n.y		= 0.0f;
-    plane.n.z		= 0.0f;
-    centerOfMass.x	= 0.0f; 
-    centerOfMass.y	= 0.0f; 
-    centerOfMass.z	= 0.0f;
+	plane.n.x = 0.0f;
+	plane.n.y = 0.0f;
+	plane.n.z = 0.0f;
+	centerOfMass.x = 0.0f;
+	centerOfMass.y = 0.0f;
+	centerOfMass.z = 0.0f;
 
-    for ( i = 0; i < GetNumberOfVertices ( ); i++ )
-    {
-        j = i + 1;
+	for (i = 0; i < GetNumberOfVertices(); i++)
+	{
+		j = i + 1;
 
-        if ( j >= GetNumberOfVertices ( ) )
+		if (j >= GetNumberOfVertices())
 		{
 			j = 0;
 		}
 
-        plane.n.x += ( verts[ i ].p.y - verts[ j ].p.y ) * ( verts[ i ].p.z + verts[ j ].p.z );
-        plane.n.y += ( verts[ i ].p.z - verts[ j ].p.z ) * ( verts[ i ].p.x + verts[ j ].p.x );
-        plane.n.z += ( verts[ i ].p.x - verts[ j ].p.x ) * ( verts[ i ].p.y + verts[ j ].p.y );
+		plane.n.x += (verts[i].p.y - verts[j].p.y) * (verts[i].p.z + verts[j].p.z);
+		plane.n.y += (verts[i].p.z - verts[j].p.z) * (verts[i].p.x + verts[j].p.x);
+		plane.n.z += (verts[i].p.x - verts[j].p.x) * (verts[i].p.y + verts[j].p.y);
 
-        centerOfMass.x += verts[ i ].p.x;
-        centerOfMass.y += verts[ i ].p.y;
-        centerOfMass.z += verts[ i ].p.z;
-    }
+		centerOfMass.x += verts[i].p.x;
+		centerOfMass.y += verts[i].p.y;
+		centerOfMass.z += verts[i].p.z;
+	}
 
-    if ( ( fabs ( plane.n.x ) < epsilon ) && ( fabs ( plane.n.y ) < epsilon ) &&
-		 ( fabs ( plane.n.z ) < epsilon ) )
-    {
-        return false;
-    }
-
-    magnitude = sqrt ( plane.n.x * plane.n.x + plane.n.y * plane.n.y + plane.n.z * plane.n.z );
-
-    if ( magnitude < epsilon )
+	if ((fabs(plane.n.x) < epsilon) && (fabs(plane.n.y) < epsilon) &&
+		(fabs(plane.n.z) < epsilon))
 	{
 		return false;
 	}
 
-    plane.n.x /= magnitude;
-    plane.n.y /= magnitude;
-    plane.n.z /= magnitude;
+	magnitude = sqrt(plane.n.x * plane.n.x + plane.n.y * plane.n.y + plane.n.z * plane.n.z);
 
-    centerOfMass.x /= ( double )GetNumberOfVertices ( );
-    centerOfMass.y /= ( double )GetNumberOfVertices ( );
-    centerOfMass.z /= ( double )GetNumberOfVertices ( );
+	if (magnitude < epsilon)
+	{
+		return false;
+	}
 
-    plane.d = -( centerOfMass.Dot ( plane.n ) );
+	plane.n.x /= magnitude;
+	plane.n.y /= magnitude;
+	plane.n.z /= magnitude;
 
-    return true;
+	centerOfMass.x /= (double)GetNumberOfVertices();
+	centerOfMass.y /= (double)GetNumberOfVertices();
+	centerOfMass.z /= (double)GetNumberOfVertices();
+
+	plane.d = -(centerOfMass.Dot(plane.n));
+
+	return true;
 }
 
-
-void Poly::AddPoly ( Poly *pPoly_ )
+void Poly::AddPoly(Poly *pPoly_)
 {
-	if ( pPoly_ != NULL )
+	if (pPoly_ != NULL)
 	{
-		if ( IsLast ( ) )
+		if (IsLast())
 		{
 			m_pNext = pPoly_;
 
@@ -627,19 +671,18 @@ void Poly::AddPoly ( Poly *pPoly_ )
 
 		Poly *pPoly = m_pNext;
 
-		while ( !pPoly->IsLast ( ) )
+		while (!pPoly->IsLast())
 		{
-			pPoly = pPoly->GetNext ( );
+			pPoly = pPoly->GetNext();
 		}
 
 		pPoly->m_pNext = pPoly_;
 	}
 }
 
-
-void Poly::SetNext ( Poly *pPoly_ )
+void Poly::SetNext(Poly *pPoly_)
 {
-	if ( IsLast ( ) )
+	if (IsLast())
 	{
 		m_pNext = pPoly_;
 
@@ -651,36 +694,34 @@ void Poly::SetNext ( Poly *pPoly_ )
 	//
 	Poly *pPoly = pPoly_;
 
-	while ( !pPoly->IsLast ( ) )
+	while (!pPoly->IsLast())
 	{
-		pPoly = pPoly->GetNext ( );
+		pPoly = pPoly->GetNext();
 	}
 
-	pPoly->SetNext ( m_pNext );
+	pPoly->SetNext(m_pNext);
 
 	m_pNext = pPoly_;
 }
 
-
-void Poly::AddVertex ( Vertex &Vertex_ )
+void Poly::AddVertex(Vertex &Vertex_)
 {
-	Vertex *pVertices = new Vertex[ m_iNumberOfVertices + 1 ];
+	Vertex *pVertices = new Vertex[m_iNumberOfVertices + 1];
 
-	memcpy ( pVertices, verts, sizeof ( Vertex ) * m_iNumberOfVertices );
+	memcpy(pVertices, verts, sizeof(Vertex) * m_iNumberOfVertices);
 
-	delete [] verts;
+	delete[] verts;
 
 	verts = pVertices;
 
-	verts[ m_iNumberOfVertices ] = Vertex_;
+	verts[m_iNumberOfVertices] = Vertex_;
 
 	m_iNumberOfVertices++;
 }
 
-
-bool Poly::IsLast () const
+bool Poly::IsLast() const
 {
-	if ( m_pNext == NULL )
+	if (m_pNext == NULL)
 	{
 		return true;
 	}
@@ -688,27 +729,25 @@ bool Poly::IsLast () const
 	return false;
 }
 
-
-Poly::Poly ( )
+Poly::Poly()
 {
-	m_pNext				= NULL;
-	verts				= NULL;
-	m_iNumberOfVertices	= 0;
-	TextureID			= "";
+	m_pNext = NULL;
+	verts = NULL;
+	m_iNumberOfVertices = 0;
+	TextureID = "";
 }
 
-
-Poly::~Poly ( )
+Poly::~Poly()
 {
-	if ( !IsLast ( ) )
+	if (!IsLast())
 	{
 		delete m_pNext;
 		m_pNext = NULL;
 	}
 
-	if ( verts != NULL )
+	if (verts != NULL)
 	{
-		delete [] verts;
+		delete[] verts;
 		verts = NULL;
 		m_iNumberOfVertices = 0;
 	}

@@ -11,7 +11,7 @@ class Vertex
 {
 public:
 	Vector3	p;
-	double	tex[ 2 ];
+	float	tex[ 2 ];
 };
 
 class Triangle
