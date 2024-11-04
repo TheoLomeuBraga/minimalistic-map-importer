@@ -285,6 +285,10 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 	bool bFound = false;
 	Texture::eGT Result;
 
+	//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+	std::cout << m_acToken << std::string(m_acToken).size() << std::endl;
+	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 	if (m_pTextureList == NULL)
 	{
 		m_pTextureList = new Texture;
@@ -292,6 +296,7 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 		while ((!bFound) && (iWAD < m_iWADFiles))
 		{
 			pTexture = m_pTextureList->GetTexture(m_acToken, m_pWAD[iWAD], m_pWADSize[iWAD], Result);
+			
 
 			if (Result == Texture::eGT::GT_LOADED)
 			{
