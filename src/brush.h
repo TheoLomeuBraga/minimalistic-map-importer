@@ -12,9 +12,10 @@ private:
 
 public:
 	Plane	plane;
-	Plane	texAxis[ 2 ];
-	double	texScale[ 2 ];
-	Texture	*pTexture;
+	float	texOffset[ 2 ];
+	float   texRotation;
+	float	texScale[ 2 ];
+	char	*pTexture;
 
 	Face *GetNext ( ) const { return m_pNext; }
 

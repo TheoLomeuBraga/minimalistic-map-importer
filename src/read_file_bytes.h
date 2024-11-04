@@ -53,8 +53,7 @@ bool read_map_file(char *path, std::vector<char> *buffer = NULL)
 			}
 
 			buffer->insert(buffer->end(), line.begin(), line.end());
-			//buffer->push_back('\n');
-			buffer->push_back(' ');
+			buffer->push_back('\n');
 		}
 	}
 

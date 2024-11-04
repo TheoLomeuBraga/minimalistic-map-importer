@@ -18,29 +18,33 @@
 #include "map.h"
 #include "WAD3.h"
 
-//createFile = read_file
-//ReadFile = buffer_read
-//SetFilePointer = buffer_jump
+// createFile = read_file
+// ReadFile = buffer_read
+// SetFilePointer = buffer_jump
 
-bool MAPFile::buffer_jump(unsigned int jump,char *byte = NULL){
+bool MAPFile::buffer_jump(unsigned int jump, char *byte = NULL)
+{
 
 	selected_byte += jump;
-	if(selected_byte < 0 || selected_byte >= buffer.size()){
+	if (selected_byte < 0 || selected_byte >= buffer.size())
+	{
 		return false;
 	}
 
-	if(byte != NULL){
+	if (byte != NULL)
+	{
 		*byte = buffer[selected_byte];
 	}
-	
+
 	return true;
 }
 
-bool MAPFile::buffer_read(char *byte){
+bool MAPFile::buffer_read(char *byte)
+{
 
-	
 	*byte = buffer[selected_byte];
-	if(selected_byte >= buffer.size()){
+	if (selected_byte >= buffer.size())
+	{
 		return false;
 	}
 	selected_byte += 1;
@@ -235,6 +239,8 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 		*ppFace_ = NULL;
 	}
 
+	
+
 	Face *pFace = new Face;
 
 	//
@@ -279,115 +285,25 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 		return RESULT_FAIL;
 	}
 
-	Texture *pTexture = NULL;
-	int iWAD = 0;
 	bool bFound = false;
-	Texture::eGT Result;
 
-	//vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-	std::cout << "texture name: " << m_acToken << std::string(m_acToken).size() << std::endl;
+	// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+	std::cout << "texture name: " << m_acToken << " size:" << std::string(m_acToken).size() << std::endl;
 	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-	if (m_pTextureList == NULL)
-	{
-		m_pTextureList = new Texture;
-
-		while ((!bFound) && (iWAD < m_iWADFiles))
-		{
-			pTexture = m_pTextureList->GetTexture(m_acToken, m_pWAD[iWAD], m_pWADSize[iWAD], Result);
-			
-
-			if (Result == Texture::eGT::GT_LOADED)
-			{
-				pTexture->uiID = (unsigned int)m_iTextures;
-				m_iTextures++;
-
-				bFound = true;
-			}
-			else
-			{
-				iWAD++;
-			}
-		}
-
-		m_pTextureList->SetNext(NULL);
-
-		delete m_pTextureList;
-
-		m_pTextureList = pTexture;
-	}
-	else
-	{
-		while ((!bFound) && (iWAD < m_iWADFiles))
-		{
-			pTexture = m_pTextureList->GetTexture(m_acToken, m_pWAD[iWAD], m_pWADSize[iWAD], Result);
-
-			if (Result == Texture::eGT::GT_LOADED)
-			{
-				//
-				// Texture had to be loaded from the WAD file
-				//
-				pTexture->uiID = (unsigned int)m_iTextures;
-				m_iTextures++;
-
-				bFound = true;
-			}
-			else if (Result == Texture::eGT::GT_FOUND)
-			{
-				//
-				// Texture was already in texture list
-				//
-				bFound = true;
-			}
-			else
-			{
-				iWAD++;
-			}
-		}
-	}
-
-	if (!bFound)
-	{
-		std::cout << "Unable to find texture " << m_acToken << "!" << std::endl;
-
-		delete pFace;
-		pFace = NULL;
-
-		return RESULT_FAIL;
-	}
-
-	pFace->pTexture = pTexture;
+	pFace->pTexture = m_acToken;
 
 	//
 	// Read texture axis
 	//
-	for (unsigned char i = 0; i < 2; i++)
-	{
-		Plane p;
 
-		result = ParsePlane(p);
+	
+	float f[5];
 
-		if (result != RESULT_SUCCEED)
-		{
-			std::cout << "Error reading texture axis! (Wrong WorldCraft version?)" << std::endl;
-
-			delete pFace;
-			pFace = NULL;
-
-			return RESULT_FAIL;
-		}
-
-		pFace->texAxis[i] = p;
-	}
-
-	//
-	// Read rotation
-	//
-	result = GetToken();
-
+	result = ParseTextureDisplay(f);
 	if (result != RESULT_SUCCEED)
 	{
-		std::cout << "Error reading rotation!" << std::endl;
+		std::cout << "Error reading texture axis! (Wrong WorldCraft version?)" << std::endl;
 
 		delete pFace;
 		pFace = NULL;
@@ -395,48 +311,13 @@ MAPFile::Result MAPFile::ParseFace(Face **ppFace_)
 		return RESULT_FAIL;
 	}
 
-	//
-	// Read scale
-	//
-	result = GetToken();
+	pFace->texOffset[0] = f[0];
+	pFace->texOffset[1] = f[1];
 
-	if (result != RESULT_SUCCEED)
-	{
-		std::cout << "Error reading U scale!" << std::endl;
+	pFace->texRotation = f[2];
 
-		delete pFace;
-		pFace = NULL;
-
-		return RESULT_FAIL;
-	}
-
-	pFace->texScale[0] = atof(m_acToken) / scale;
-
-	result = GetToken();
-
-	if (result != RESULT_SUCCEED)
-	{
-		std::cout << "Error reading V scale!" << std::endl;
-
-		delete pFace;
-		pFace = NULL;
-
-		return RESULT_FAIL;
-	}
-
-	pFace->texScale[1] = atof(m_acToken) / scale;
-
-	result = GetToken();
-
-	if (result != RESULT_SUCCEED)
-	{
-		std::cout << "Error reading face!" << std::endl;
-
-		delete pFace;
-		pFace = NULL;
-
-		return RESULT_FAIL;
-	}
+	pFace->texScale[0] = f[3];
+	pFace->texScale[1] = f[4];
 
 	*ppFace_ = pFace;
 
@@ -579,14 +460,16 @@ MAPFile::Result MAPFile::ParseBrush(Brush **ppBrush_)
 
 	for (int c = 0; c < uiFaces; c++)
 	{
+
 		pi->plane = pFace->plane;
-		pi->TextureID = pFace->pTexture->uiID;
+		pi->TextureID = pFace->pTexture;
 
 		pi->SortVerticesCW();
 
-		pi->CalculateTextureCoordinates(pFace->pTexture->GetWidth(),
-										pFace->pTexture->GetHeight(),
-										pFace->texAxis, pFace->texScale);
+		float f[5] = {pFace->texOffset[0], pFace->texOffset[1],
+					  pFace->texRotation,
+					  pFace->texScale[0], pFace->texScale[1]};
+		pi->CalculateTextureCoordinates(f);
 
 		pFace = pFace->GetNext();
 		pi = pi->GetNext();
@@ -717,14 +600,12 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 					delete[] pOldSize;
 				}
 
-				//MapFile(m_acToken, &m_pWAD[m_iWADFiles], &m_pWADSize[m_iWADFiles]);
+				// MapFile(m_acToken, &m_pWAD[m_iWADFiles], &m_pWADSize[m_iWADFiles]);
 
 				std::vector<char> buffer;
 				read_file(&m_acToken[0], &buffer);
 				m_pWADSize[m_iWADFiles] = buffer.size();
-				m_pWAD[m_iWADFiles] = static_cast<void*>(buffer.data());
-
-				
+				m_pWAD[m_iWADFiles] = static_cast<void *>(buffer.data());
 
 				iToken = 0;
 				m_iWADFiles++;
@@ -766,12 +647,12 @@ MAPFile::Result MAPFile::ParseProperty(Property **ppProperty_)
 	return RESULT_SUCCEED;
 }
 
-bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
+bool MAPFile::Load(char *pcFile_, Entity **ppEntities_)
 {
 	//
 	// Check if parameters are valid
 	//
-	
+
 	if (pcFile_ == NULL)
 	{
 		return false;
@@ -788,11 +669,8 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 		*ppEntities_ = NULL;
 	}
 
-	
-
 	m_pWAD = NULL;
 	m_pWADSize = NULL;
-	m_pTextureList = NULL;
 
 	m_iEntities = 0;
 	m_iPolygons = 0;
@@ -804,16 +682,12 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 	// Open .MAP file
 	//
 
-	
-
 	selected_byte = 0;
-	if (!read_map_file(pcFile_,&buffer))
-	{ 
+	if (!read_map_file(pcFile_, &buffer))
+	{
 		std::cout << "File read file error!" << std::endl;
 		return false;
 	}
-
-	
 
 	//
 	// Parse file
@@ -846,7 +720,6 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 
 			delete[] m_pWAD;
 			delete[] m_pWADSize;
-			delete m_pTextureList;
 
 			return false;
 		}
@@ -874,72 +747,56 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_, Texture **ppTextures_)
 	delete[] m_pWADSize;
 
 	*ppEntities_ = pEntityList;
-	*ppTextures_ = m_pTextureList;
 
 	return true;
 }
 
-MAPFile::Result MAPFile::ParsePlane(Plane &p_)
+MAPFile::Result MAPFile::ParseTextureDisplay(float *f)
 {
+
 	Result result = GetToken();
-
-	if (result != RESULT_SUCCEED)
-	{
-		return RESULT_FAIL;
-	}
-
-	if (strcmp("[", m_acToken))
-	{
-		return RESULT_FAIL;
-	}
+	std::cout << m_acToken << std::endl;
+	f[0] = atof(m_acToken);
 
 	result = GetToken();
+	std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
 		return RESULT_FAIL;
 	}
 
-	p_.n.x = atof(m_acToken);
+	f[1] = atof(m_acToken);
 
 	result = GetToken();
+	std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
 		return RESULT_FAIL;
 	}
 
-	p_.n.z = atof(m_acToken);
+	f[2] = atof(m_acToken);
 
 	result = GetToken();
+	std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
 		return RESULT_FAIL;
 	}
 
-	p_.n.y = atof(m_acToken);
+	f[3] = atof(m_acToken);
 
 	result = GetToken();
+	std::cout << m_acToken << std::endl;
 
 	if (result != RESULT_SUCCEED)
 	{
 		return RESULT_FAIL;
 	}
 
-	p_.d = atof(m_acToken);
-
-	result = GetToken();
-
-	if (result != RESULT_SUCCEED)
-	{
-		return RESULT_FAIL;
-	}
-
-	if (strcmp("]", m_acToken))
-	{
-		return RESULT_FAIL;
-	}
+	f[4] = atof(m_acToken);
 
 	return RESULT_SUCCEED;
 }

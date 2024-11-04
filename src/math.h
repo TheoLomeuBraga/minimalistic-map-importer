@@ -3,14 +3,12 @@
 #include <iostream>
 #include <cmath>
 
-
 ////////////////////////////////////////////////////////////////////
 // Constants
 ////////////////////////////////////////////////////////////////////
 
-const double	epsilon = 1e-5;		// Used to compensate for floating point inaccuracy.
-const double	scale	= 128;		// Scale
-
+const double epsilon = 1e-5; // Used to compensate for floating point inaccuracy.
+const double scale = 128;	 // Scale
 
 ////////////////////////////////////////////////////////////////////
 // Name:		Vector3
@@ -22,9 +20,9 @@ class Vector3
 public:
 	double x, y, z;
 
-	const bool operator == ( const Vector3 &arg_ ) const
+	const bool operator==(const Vector3 &arg_) const
 	{
-		if ( ( x == arg_.x ) && ( y == arg_.y ) && ( z == arg_.z ) )
+		if ((x == arg_.x) && (y == arg_.y) && (z == arg_.z))
 		{
 			return true;
 		}
@@ -32,7 +30,7 @@ public:
 		return false;
 	}
 
-	const Vector3 operator - ( const Vector3 &arg_ ) const
+	const Vector3 operator-(const Vector3 &arg_) const
 	{
 		Vector3 temp;
 
@@ -43,7 +41,7 @@ public:
 		return temp;
 	}
 
-	const Vector3 operator + ( const Vector3 &arg_ ) const
+	const Vector3 operator+(const Vector3 &arg_) const
 	{
 		Vector3 temp;
 
@@ -54,7 +52,7 @@ public:
 		return temp;
 	}
 
-	const Vector3 operator * ( const double fArg_ ) const
+	const Vector3 operator*(const double fArg_) const
 	{
 		Vector3 temp;
 
@@ -65,7 +63,7 @@ public:
 		return temp;
 	}
 
-	const Vector3 operator / ( const double fArg_ ) const
+	const Vector3 operator/(const double fArg_) const
 	{
 		Vector3 temp;
 
@@ -76,7 +74,7 @@ public:
 		return temp;
 	}
 
-	const Vector3 operator - ( ) const
+	const Vector3 operator-() const
 	{
 		Vector3 temp;
 
@@ -87,12 +85,12 @@ public:
 		return temp;
 	}
 
-	const double Dot ( const Vector3 &arg_ ) const
+	const double Dot(const Vector3 &arg_) const
 	{
 		return x * arg_.x + y * arg_.y + z * arg_.z;
 	}
 
-	const Vector3 Cross ( const Vector3 &arg_ ) const
+	const Vector3 Cross(const Vector3 &arg_) const
 	{
 		Vector3 temp;
 
@@ -103,19 +101,19 @@ public:
 		return temp;
 	}
 
-	const double Magnitude ( ) const
+	const double Magnitude() const
 	{
-		return sqrt ( x * x + y * y + z * z );
+		return sqrt(x * x + y * y + z * z);
 	}
 
-	const double MagnitudeSquared ( ) const
+	const double MagnitudeSquared() const
 	{
-		return ( x * x + y * y + z * z );
+		return (x * x + y * y + z * z);
 	}
 
-	void Normalize ( )
+	void Normalize()
 	{
-		const double fLength = Magnitude ( );
+		const double fLength = Magnitude();
 
 		x /= fLength;
 		y /= fLength;
@@ -124,21 +122,33 @@ public:
 		return;
 	}
 
-	Vector3 ( )
+	Vector3()
 	{
 		x = 0;
 		y = 0;
 		z = 0;
 	}
 
-	Vector3 ( const double x, const double y, const double z )
+	Vector3(const double x, const double y, const double z)
 	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
-};
 
+	static Vector3 CalculateRelativePosition( Vector3 p, Vector3 n)
+	{
+		n.Normalize();
+		Vector3 normalizedN = n;
+
+		// Projeção de p na normal
+		float projectionLength = p.Dot(normalizedN);
+		Vector3 projection = {normalizedN.x * projectionLength, normalizedN.y * projectionLength, normalizedN.z * projectionLength};
+
+		// Posição relativa
+		return p - projection;
+	}
+};
 
 ////////////////////////////////////////////////////////////////////
 // Name:		Plane
@@ -148,52 +158,57 @@ public:
 class Plane
 {
 public:
-	Vector3	n;	// Plane normal
-	double	d;	// D
+	Vector3 n; // Plane normal
+	double d;  // D
 
-	enum eCP { FRONT = 0, BACK, ONPLANE };
+	enum eCP
+	{
+		FRONT = 0,
+		BACK,
+		ONPLANE
+	};
 
-	Plane ( )
+	Plane()
 	{
 		d = 0;
 	}
 
-	Plane ( const Vector3 n, const double d )
+	Plane(const Vector3 n, const double d)
 	{
 		this->n = n;
 		this->d = d;
 	}
 
-	Plane ( const Vector3 &a, const Vector3 &b, const Vector3 &c )
+	Plane(const Vector3 &a, const Vector3 &b, const Vector3 &c)
 	{
-		n = ( c - b ).Cross ( a - b );
-		n.Normalize ( );
+		n = (c - b).Cross(a - b);
+		n.Normalize();
 
-		d = -n.Dot ( a );
+		d = -n.Dot(a);
 	}
 
-	void PointsToPlane ( const Vector3 &a, const Vector3 &b, const Vector3 &c )
+	void PointsToPlane(const Vector3 &a, const Vector3 &b, const Vector3 &c)
 	{
-		n = ( c - b ).Cross ( a - b );
-		n.Normalize ( );
+		n = (c - b).Cross(a - b);
+		n.Normalize();
 
-		d = -n.Dot ( a );
+		d = -n.Dot(a);
 	}
 
-	double DistanceToPlane ( const Vector3 &v )
+	double DistanceToPlane(const Vector3 &v)
 	{
-		return ( n.Dot ( v ) + d );
+		return (n.Dot(v) + d);
 	}
 
-	eCP ClassifyPoint ( const Vector3 &v )
+	eCP ClassifyPoint(const Vector3 &v)
 	{
-		double Distance = DistanceToPlane ( v );
+		double Distance = DistanceToPlane(v);
 
-		if ( Distance > epsilon )
+		if (Distance > epsilon)
 		{
 			return eCP::FRONT;
 		}
-		else if ( Distance < -epsilon )
+		else if (Distance < -epsilon)
 		{
 			return eCP::BACK;
 		}
@@ -201,40 +216,40 @@ public:
 		return eCP::ONPLANE;
 	}
 
-	bool GetIntersection ( const Plane &a, const Plane &b, Vector3 &v )
+	bool GetIntersection(const Plane &a, const Plane &b, Vector3 &v)
 	{
-		double	denom;
+		double denom;
 
-		denom = n.Dot ( a.n.Cross ( b.n ) );
+		denom = n.Dot(a.n.Cross(b.n));
 
-		if ( fabs ( denom ) < epsilon )
+		if (fabs(denom) < epsilon)
 		{
 			return false;
 		}
 
-		v = ( ( a.n.Cross ( b.n ) ) * -d - ( b.n.Cross ( n ) ) * a.d - ( n.Cross ( a.n ) ) * b.d ) / denom;
+		v = ((a.n.Cross(b.n)) * -d - (b.n.Cross(n)) * a.d - (n.Cross(a.n)) * b.d) / denom;
 
 		return true;
 	}
 
-	bool GetIntersection ( const Vector3 &Start, const Vector3 &End, Vector3 &Intersection, double &Percentage )
+	bool GetIntersection(const Vector3 &Start, const Vector3 &End, Vector3 &Intersection, double &Percentage)
 	{
-		Vector3	Direction = End - Start;
-		double	Num, Denom;
+		Vector3 Direction = End - Start;
+		double Num, Denom;
 
-		Direction.Normalize ( );
+		Direction.Normalize();
 
-		Denom = n.Dot ( Direction );
+		Denom = n.Dot(Direction);
 
-		if ( fabs ( Denom ) < epsilon )
+		if (fabs(Denom) < epsilon)
 		{
 			return false;
 		}
 
-		Num				= -DistanceToPlane ( Start );
-		Percentage		= Num / Denom;
-		Intersection	= Start + ( Direction * Percentage );
-		Percentage		= Percentage / ( End - Start ).Magnitude ( );
+		Num = -DistanceToPlane(Start);
+		Percentage = Num / Denom;
+		Intersection = Start + (Direction * Percentage);
+		Percentage = Percentage / (End - Start).Magnitude();
 
 		return true;
 	}

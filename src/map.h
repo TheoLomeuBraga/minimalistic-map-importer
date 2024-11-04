@@ -53,7 +53,6 @@ private:
 	int		m_iWADFiles;
 	void	**m_pWAD;
 	unsigned int	*m_pWADSize;
-	Texture	*m_pTextureList;
 
 	int		m_iEntities;
 	int		m_iPolygons;
@@ -67,8 +66,8 @@ private:
 	Result ParseBrush ( Brush **ppBrush_ );
 	Result ParseFace ( Face **ppFace_ );
 	Result ParseVector ( Vector3 &v_ );
-	Result ParsePlane ( Plane &p_ );
+	Result ParseTextureDisplay ( float *f );
 
 public:
-	bool Load ( char *pcFile_, Entity **ppEntities_, Texture **pTexture_ );
+	bool Load ( char *pcFile_, Entity **ppEntities_ );
 };

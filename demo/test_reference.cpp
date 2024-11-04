@@ -18,9 +18,8 @@ int main()
     MAPFile map;
     
     Entity *entitys = NULL;
-    Texture *textures = NULL;
 
-    if(!map.Load("map.map",&entitys,&textures)){
+    if(!map.Load("map.map",&entitys)){
         std::cout << "error!\n";
         return 0;
     }
@@ -33,15 +32,14 @@ int main()
 
         //Property
 
-        Property *properties = e->GetProperties();
-        Property *p = properties;
+        Property *p = e->GetProperties();
 
         while(p != NULL){
             std::cout << "  " << p->GetName() << " " << p->GetValue() << std::endl;
+            
+            
             p = p->GetNext();
         }
-
-        //
 
         e = e->GetNext();
 

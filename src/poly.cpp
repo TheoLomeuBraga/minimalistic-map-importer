@@ -338,26 +338,29 @@ void Poly::SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ )
 }
 
 
-void Poly::CalculateTextureCoordinates ( int texWidth, int texHeight, Plane texAxis[ 2 ], double texScale[ 2 ] )
+void Poly::CalculateTextureCoordinates (float *f )
 {
-	//
-	// Calculate texture coordinates
-	//
-	for ( int i = 0; i < GetNumberOfVertices ( ); i++ )
-	{
-		double U, V;
+
+	float	Offset[ 2 ] = {f[0],f[1]};
+	float   Rotation = f[2];
+	float	Scale[ 2 ] = {f[3],f[4]};
+	float cosTheta = cos(Rotation);
+    float sinTheta = sin(Rotation);
+
+    for (int i = 0; i < GetNumberOfVertices(); i++) {
+
+		Vector3 rvp = Vector3::CalculateRelativePosition(verts[i].p, plane.n);
 		
-		U = texAxis[ 0 ].n.Dot ( verts[ i ].p );
-		U = U / ( ( double )texWidth ) / texScale[ 0 ];
-		U = U + ( texAxis[ 0 ].d / ( double )texWidth );
+        float U = rvp.Dot(plane.n) * Scale[0] + Offset[0];
+        float V = rvp.Dot(plane.n) * Scale[1] + Offset[1];
+		
+        float rotatedU = U * cosTheta - V * sinTheta;
+        float rotatedV = U * sinTheta + V * cosTheta;
+		
+        verts[i].tex[0] = rotatedU;
+        verts[i].tex[1] = rotatedV;
+    }
 
-		V = texAxis[ 1 ].n.Dot ( verts[ i ].p );
-		V = V / ( ( double )texHeight ) / texScale[ 1 ];
-		V = V + ( texAxis[ 1 ].d / ( double )texHeight );
-
-		verts[ i ].tex[ 0 ] = U;
-		verts[ i ].tex[ 1 ] = V;
-	}
 
 	//
 	// Check which axis should be normalized

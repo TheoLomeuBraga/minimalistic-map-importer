@@ -13,33 +13,6 @@ public:
 };
 
 
-class Texture
-{
-private:
-	Texture*		m_pNext;
-	int				m_iWidth;
-	int				m_iHeight;
-
-public:
-	enum eGT { GT_FOUND = 0, GT_LOADED, GT_ERROR };
-
-	unsigned int	uiID;	
-	char			name[ MAX_TEXTURE_LENGTH + 1 ];
-
-	Texture ( );
-	~Texture ( );
-
-	Texture* GetTexture ( char *pacTexture_, void* lpView_, unsigned int dwFileSize_, eGT &rResult_ );
-	Texture* GetNext ( ) const { return m_pNext; }
-
-	bool IsLast ( ) const;
-	int GetHeight ( ) const { return m_iHeight; }
-	int GetWidth ( ) const { return m_iWidth; }
-
-	void SetNext ( Texture* pTexture_ );
-};
-
-
 class Poly
 {
 public:
@@ -50,7 +23,7 @@ public:
 
 	Vertex			*verts;
 	Plane			plane;
-	unsigned int	TextureID;
+	char            *TextureID;
 
 	Poly *GetNext ( ) const { return m_pNext; }
 	Poly *CopyList ( ) const;
@@ -67,7 +40,7 @@ public:
 	bool CalculatePlane ( );
 	void SortVerticesCW ( );
 	void ToLeftHanded ( );
-	void CalculateTextureCoordinates ( int texWidth, int texHeight, Plane texAxis[ 2 ], double texScale[ 2 ] );
+	void CalculateTextureCoordinates ( float *pFace );
 	void SplitPoly ( Poly *pPoly_, Poly **ppFront_, Poly **ppBack_ );
 	eCP ClassifyPoly ( Poly *pPoly_ );
 
