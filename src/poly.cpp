@@ -416,8 +416,6 @@ void Poly::CalculateTextureCoordinates(float *f)
 	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
 
-		Vector3 pos = verts[i].p;
-
 		float u_coord, v_coord;
 
 		if (du >= dr && du >= df)
@@ -437,25 +435,25 @@ void Poly::CalculateTextureCoordinates(float *f)
 		}
 		
 		/**/
-		float angle = Rotation * (M_PI / 180.0f);
-		float cosTheta = cos(angle);
-		float sinTheta = sin(angle);
-
-		u_coord = u_coord * cosTheta - v_coord * sinTheta;
-		v_coord = u_coord * sinTheta + v_coord * cosTheta;
-		
 
 		u_coord = u_coord + Offset[0];
 		v_coord = v_coord + Offset[1];
 
-		u_coord = u_coord / Scale[0];
-		v_coord = v_coord / Scale[1];
+		u_coord = u_coord * Scale[0];
+		v_coord = v_coord * Scale[1];
 
-		printf("normal: %f , %f , %f\n", normal.x, normal.y, normal.z);
-		// printf("uv: %f , %f\n", u_coord, v_coord);
+		float angle = Rotation * (M_PI / 180.0f);
+		float cosTheta = cos(angle);
+		float sinTheta = sin(angle);
 
-		verts[i].tex[0] = u_coord;
-		verts[i].tex[1] = v_coord;
+		float u = u_coord * cosTheta - v_coord * sinTheta;
+		float v = u_coord * sinTheta + v_coord * cosTheta;
+		
+
+		
+
+		verts[i].tex[0] = u;
+		verts[i].tex[1] = v;
 	}
 
 	/*
