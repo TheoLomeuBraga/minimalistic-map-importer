@@ -370,21 +370,13 @@ void Poly::SplitPoly(Poly *pPoly_, Poly **ppFront_, Poly **ppBack_)
 	*ppBack_ = pBack;
 }
 
-/**/
-Vector3 CalculateCenter(std::vector<Vector3> points)
-{
-
-	Vector3 center(0.0f, 0.0f, 0.0f);
-
-	// Itera sobre todos os pontos e acumula as normais calculadas
-	for (size_t i = 1; i < points.size() - 1; ++i)
+Vector3 Poly::CalculatePolyCenter(){
+	std::vector<Vector3> points;
+	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
-		center = center + points[i];
+		points.push_back(verts[i].p);
 	}
-
-	center = Vector3(center.x / points.size(),center.y / points.size(),center.z / points.size());
-
-	return center;
+	return Vector3::CalculateCenter(points);
 }
 
 
@@ -396,15 +388,6 @@ void Poly::CalculateTextureCoordinates(float *f)
 	float Scale[2] = {f[3], f[4]};
 	const float cosTheta = cos(Rotation);
 	const float sinTheta = sin(Rotation);
-
-	// center
-	/**/
-	std::vector<Vector3> points;
-	for (int i = 0; i < GetNumberOfVertices(); i++)
-	{
-		points.push_back(verts[i].p);
-	}
-	Vector3 center = CalculateCenter(points);
 	
 	Vector3 normal = plane.n;
 

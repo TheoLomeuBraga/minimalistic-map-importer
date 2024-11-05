@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 #include <cmath>
 
 ////////////////////////////////////////////////////////////////////
@@ -136,7 +137,7 @@ public:
 		this->z = z;
 	}
 
-	static Vector3 CalculateRelativePosition( Vector3 p, Vector3 n)
+	static Vector3 CalculateRelativePosition(Vector3 p, Vector3 n)
 	{
 		n.Normalize();
 		Vector3 normalizedN = n;
@@ -147,6 +148,22 @@ public:
 
 		// Posição relativa
 		return p - projection;
+	}
+
+	static Vector3 CalculateCenter(std::vector<Vector3> points)
+	{
+
+		Vector3 center(0.0f, 0.0f, 0.0f);
+
+		// Itera sobre todos os pontos e acumula as normais calculadas
+		for (size_t i = 1; i < points.size() - 1; ++i)
+		{
+			center = center + points[i];
+		}
+
+		center = Vector3(center.x / points.size(), center.y / points.size(), center.z / points.size());
+
+		return center;
 	}
 };
 

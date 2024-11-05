@@ -738,9 +738,9 @@ bool MAPFile::Load(char *pcFile_, Entity **ppEntities_)
 	//
 	// Clean up and return
 	//
-	std::cout << "Entities: " << m_iEntities << std::endl;
-	std::cout << "Polygons: " << m_iPolygons << std::endl;
-	std::cout << "Textures: " << m_iTextures << std::endl;
+	//std::cout << "Entities: " << m_iEntities << std::endl;
+	//std::cout << "Polygons: " << m_iPolygons << std::endl;
+	//std::cout << "Textures: " << m_iTextures << std::endl;
 
 	delete[] m_pWAD;
 	delete[] m_pWADSize;

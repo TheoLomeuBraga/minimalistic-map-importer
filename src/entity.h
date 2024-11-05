@@ -37,6 +37,7 @@ public:
 	Poly *CopyList ( ) const;
 	Poly *CopyPoly ( ) const;
 	Poly *ClipToList ( Poly *pPoly_, bool bClipOnPlane_ );
+	Vector3 CalculatePolyCenter();
 
 	int GetNumberOfVertices ( ) const { return m_iNumberOfVertices; }
 	std::vector<Triangle> convert_to_triangles();
@@ -101,6 +102,7 @@ public:
 	Entity *GetNext ( ) const { return m_pNext; }
 	Property *GetProperties ( ) { return m_pProperties; }
 	Poly *GetPolys ( ) const { return m_pPolys; }
+	Vector3 CalculateEntityCenter();
 
 	unsigned int GetNumberOfProperties ( ) const;
 	unsigned int GetNumberOfPolys ( ) const;

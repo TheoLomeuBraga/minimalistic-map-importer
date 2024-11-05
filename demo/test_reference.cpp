@@ -42,6 +42,8 @@ int main()
     while (e != NULL)
     {
 
+        e->CalculateEntityCenter();
+
         // Itera pelos polígonos da entidade
         Poly *po = e->GetPolys();
         while (po != NULL)

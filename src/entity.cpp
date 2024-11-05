@@ -1,81 +1,121 @@
 #include "map.h"
-
+#include "math.h"
+#include <sstream>
+#include <cstring>
 
 ////////////////////////////////////////////////////////////////////
 // Entity member functions
 ////////////////////////////////////////////////////////////////////
 
-
-
-void Entity::WriteEntity ( std::ofstream &ofsFile_ ) const
+Vector3 Entity::CalculateEntityCenter()
 {
-/*	Entity:
-	x char		Entity class (zero terminated)
-	1 uint		Number of properties
-	x Property	Entities properties
-	1 uint		Number of polygons
-	x Polygon	Polygons */
-
-	ofsFile_ << m_pProperties->GetValue ( ) << ( char )0x00;
-
-	unsigned int ui = GetNumberOfProperties ( ) - 1;
-
-	ofsFile_.write ( ( char * )&ui, sizeof ( ui ) );
-
-	if ( !m_pProperties->IsLast ( ) )
+	std::vector<Vector3> points;
+	Poly *po = GetPolys();
+	while (po != NULL)
 	{
-		m_pProperties->GetNext ( )->WriteProperty ( ofsFile_ );
+		points.push_back(po->CalculatePolyCenter());
+		po = po->GetNext();
 	}
 
-	ui = GetNumberOfPolys ( );
-
-	ofsFile_.write ( ( char * )&ui, sizeof ( ui ) );
-
-	if ( GetNumberOfPolys ( ) > 0 )
+	if (points.size() > 0)
 	{
-		m_pPolys->WritePoly ( ofsFile_ );
+		return Vector3::CalculateCenter(points);
+	}
+	else
+	{
+		Property *p = GetProperties();
+
+		while (p != NULL)
+		{
+
+			if (!strcmp("origin", p->GetName()))
+			{
+				
+
+				
+
+				Vector3 ret(0, 0, 0);
+				std::istringstream ss(p->GetValue());
+				ss >> ret.x >> ret.y >> ret.z;
+				ret.x /= scale;
+				ret.y /= scale;
+				ret.z /= scale;
+				return ret;
+			}
+
+			p = p->GetNext();
+		}
 	}
 
-	if ( !IsLast ( ) )
+	return Vector3(0, 0, 0);
+}
+
+void Entity::WriteEntity(std::ofstream &ofsFile_) const
+{
+	/*	Entity:
+		x char		Entity class (zero terminated)
+		1 uint		Number of properties
+		x Property	Entities properties
+		1 uint		Number of polygons
+		x Polygon	Polygons */
+
+	ofsFile_ << m_pProperties->GetValue() << (char)0x00;
+
+	unsigned int ui = GetNumberOfProperties() - 1;
+
+	ofsFile_.write((char *)&ui, sizeof(ui));
+
+	if (!m_pProperties->IsLast())
 	{
-		GetNext ( )->WriteEntity ( ofsFile_ );
+		m_pProperties->GetNext()->WriteProperty(ofsFile_);
+	}
+
+	ui = GetNumberOfPolys();
+
+	ofsFile_.write((char *)&ui, sizeof(ui));
+
+	if (GetNumberOfPolys() > 0)
+	{
+		m_pPolys->WritePoly(ofsFile_);
+	}
+
+	if (!IsLast())
+	{
+		GetNext()->WriteEntity(ofsFile_);
 	}
 }
 
-
-Entity::Entity ( )
+Entity::Entity()
 {
-	m_pNext			= NULL;
-	m_pProperties	= NULL;
-	m_pPolys		= NULL;
+	m_pNext = NULL;
+	m_pProperties = NULL;
+	m_pPolys = NULL;
 }
 
-
-Entity::~Entity ( )
+Entity::~Entity()
 {
-	if ( m_pProperties != NULL )
+	if (m_pProperties != NULL)
 	{
 		delete m_pProperties;
 		m_pProperties = NULL;
 	}
 
-	if ( m_pPolys != NULL )
+	if (m_pPolys != NULL)
 	{
 		delete m_pPolys;
 		m_pPolys = NULL;
 	}
 
-	if ( m_pNext != NULL )
+	if (m_pNext != NULL)
 	{
 		delete m_pNext;
 		m_pNext = NULL;
 	}
 }
 
-
-bool Entity::IsLast ( ) const
+bool Entity::IsLast() const
 {
-	if ( m_pNext == NULL )
+	if (m_pNext == NULL)
 	{
 		return true;
 	}
@@ -83,10 +123,9 @@ bool Entity::IsLast ( ) const
 	return false;
 }
 
-
-void Entity::AddEntity ( Entity *pEntity_ )
+void Entity::AddEntity(Entity *pEntity_)
 {
-	if ( IsLast ( ) )
+	if (IsLast())
 	{
 		m_pNext = pEntity_;
 
@@ -95,18 +134,17 @@ void Entity::AddEntity ( Entity *pEntity_ )
 
 	Entity *pEntity = m_pNext;
 
-	while ( !pEntity->IsLast ( ) )
+	while (!pEntity->IsLast())
 	{
-		pEntity = pEntity->GetNext ( );
+		pEntity = pEntity->GetNext();
 	}
 
 	pEntity->m_pNext = pEntity_;
 }
 
-
-void Entity::AddProperty ( Property *pProperty_ )
+void Entity::AddProperty(Property *pProperty_)
 {
-	if ( m_pProperties == NULL )
+	if (m_pProperties == NULL)
 	{
 		m_pProperties = pProperty_;
 
@@ -115,18 +153,17 @@ void Entity::AddProperty ( Property *pProperty_ )
 
 	Property *pProperty = m_pProperties;
 
-	while ( !pProperty->IsLast () )
+	while (!pProperty->IsLast())
 	{
-		pProperty = pProperty->GetNext ( );
+		pProperty = pProperty->GetNext();
 	}
 
-	pProperty->SetNext ( pProperty_ );
+	pProperty->SetNext(pProperty_);
 }
 
-
-void Entity::AddPoly ( Poly *pPoly_ )
+void Entity::AddPoly(Poly *pPoly_)
 {
-	if ( m_pPolys == NULL )
+	if (m_pPolys == NULL)
 	{
 		m_pPolys = pPoly_;
 
@@ -135,38 +172,36 @@ void Entity::AddPoly ( Poly *pPoly_ )
 
 	Poly *pPoly = m_pPolys;
 
-	while ( !pPoly->IsLast ( ) )
+	while (!pPoly->IsLast())
 	{
-		pPoly = pPoly->GetNext ( );
+		pPoly = pPoly->GetNext();
 	}
 
-	pPoly->SetNext ( pPoly_ );
+	pPoly->SetNext(pPoly_);
 }
 
-
-unsigned int Entity::GetNumberOfProperties ( ) const
+unsigned int Entity::GetNumberOfProperties() const
 {
-	Property		*pProperty	= m_pProperties;
-	unsigned int	uiCount		= 0;
+	Property *pProperty = m_pProperties;
+	unsigned int uiCount = 0;
 
-	while ( pProperty != NULL )
+	while (pProperty != NULL)
 	{
-		pProperty = pProperty->GetNext ( );
+		pProperty = pProperty->GetNext();
 		uiCount++;
 	}
 
 	return uiCount;
 }
 
-
-unsigned int Entity::GetNumberOfPolys ( ) const
+unsigned int Entity::GetNumberOfPolys() const
 {
-	Poly			*pPoly		= m_pPolys;
-	unsigned int	uiCount		= 0;
+	Poly *pPoly = m_pPolys;
+	unsigned int uiCount = 0;
 
-	while ( pPoly != NULL )
+	while (pPoly != NULL)
 	{
-		pPoly = pPoly->GetNext ( );
+		pPoly = pPoly->GetNext();
 		uiCount++;
 	}
 
