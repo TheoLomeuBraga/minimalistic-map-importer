@@ -366,28 +366,23 @@ void Poly::SplitPoly(Poly *pPoly_, Poly **ppFront_, Poly **ppBack_)
 	*ppBack_ = pBack;
 }
 
-/*
-Vector3 CalculateNormal(std::vector<Vector3> points)
+/**/
+Vector3 CalculateCenter(std::vector<Vector3> points)
 {
 
-	Vector3 normal(0.0f, 0.0f, 0.0f);
+	Vector3 center(0.0f, 0.0f, 0.0f);
 
 	// Itera sobre todos os pontos e acumula as normais calculadas
 	for (size_t i = 1; i < points.size() - 1; ++i)
 	{
-		Vector3 edge1 = points[i] - points[0];
-		Vector3 edge2 = points[i + 1] - points[0];
-		Vector3 crossProduct = edge1.Cross(edge2);
-
-		normal = normal + crossProduct;
+		center = center + points[i];
 	}
 
-	// Normaliza a normal acumulada
-	normal.Normalize();
+	center = Vector3(center.x / points.size(),center.y / points.size(),center.z / points.size());
 
-	return normal;
+	return center;
 }
-*/
+
 
 void Poly::CalculateTextureCoordinates(float *f)
 {
@@ -398,15 +393,15 @@ void Poly::CalculateTextureCoordinates(float *f)
 	const float cosTheta = cos(Rotation);
 	const float sinTheta = sin(Rotation);
 
-	// normal
-	/*
+	// center
+	/**/
 	std::vector<Vector3> points;
 	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
 		points.push_back(verts[i].p);
 	}
-	Vector3 normal = CalculateNormal(points);
-	*/
+	Vector3 center = CalculateCenter(points);
+	
 	Vector3 normal = plane.n;
 
 	Vector3 up(0, 0, 1);
@@ -441,20 +436,20 @@ void Poly::CalculateTextureCoordinates(float *f)
 			v_coord = -verts[i].p.z;
 		}
 		
-		/*
+		/**/
 		float angle = Rotation * (M_PI / 180.0f);
 		float cosTheta = cos(angle);
 		float sinTheta = sin(angle);
 
 		u_coord = u_coord * cosTheta - v_coord * sinTheta;
 		v_coord = u_coord * sinTheta + v_coord * cosTheta;
-		*/
+		
 
 		u_coord = u_coord + Offset[0];
 		v_coord = v_coord + Offset[1];
 
-		u_coord = u_coord * Scale[0];
-		v_coord = v_coord * Scale[1];
+		u_coord = u_coord / Scale[0];
+		v_coord = v_coord / Scale[1];
 
 		printf("normal: %f , %f , %f\n", normal.x, normal.y, normal.z);
 		// printf("uv: %f , %f\n", u_coord, v_coord);
