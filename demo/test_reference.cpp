@@ -3,7 +3,7 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
-#define MAP_PIXEL_SIZE 32
+#define MAP_TEXTURE_RESOLUTION_SIZE 32
 #include "mmapi/map.h"
 
 int main()

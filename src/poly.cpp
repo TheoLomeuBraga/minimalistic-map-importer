@@ -5,8 +5,8 @@
 // Poly member functions
 ////////////////////////////////////////////////////////////////////
 
-#ifndef MAP_PIXEL_SIZE
-#define MAP_PIXEL_SIZE 32
+#ifndef MAP_TEXTURE_RESOLUTION_SIZE
+#define MAP_TEXTURE_RESOLUTION_SIZE 32
 #endif
 
 void Poly::WritePoly(std::ofstream &ofsFile_) const
@@ -20,10 +20,10 @@ void Poly::WritePoly(std::ofstream &ofsFile_) const
 	*/
 
 	ofsFile_.write((char *)&TextureID, sizeof(unsigned int));
-	ofsFile_.write((char *)&plane.n.x, sizeof(double));
-	ofsFile_.write((char *)&plane.n.y, sizeof(double));
-	ofsFile_.write((char *)&plane.n.z, sizeof(double));
-	ofsFile_.write((char *)&plane.d, sizeof(double));
+	ofsFile_.write((char *)&plane.n.x, sizeof(float));
+	ofsFile_.write((char *)&plane.n.y, sizeof(float));
+	ofsFile_.write((char *)&plane.n.z, sizeof(float));
+	ofsFile_.write((char *)&plane.d, sizeof(float));
 
 	unsigned int ui = (unsigned int)GetNumberOfVertices();
 
@@ -31,11 +31,11 @@ void Poly::WritePoly(std::ofstream &ofsFile_) const
 
 	for (int i = 0; i < GetNumberOfVertices(); i++)
 	{
-		ofsFile_.write((char *)&verts[i].p.x, sizeof(double));
-		ofsFile_.write((char *)&verts[i].p.y, sizeof(double));
-		ofsFile_.write((char *)&verts[i].p.z, sizeof(double));
-		ofsFile_.write((char *)&verts[i].tex[0], sizeof(double));
-		ofsFile_.write((char *)&verts[i].tex[1], sizeof(double));
+		ofsFile_.write((char *)&verts[i].p.x, sizeof(float));
+		ofsFile_.write((char *)&verts[i].p.y, sizeof(float));
+		ofsFile_.write((char *)&verts[i].p.z, sizeof(float));
+		ofsFile_.write((char *)&verts[i].tex[0], sizeof(float));
+		ofsFile_.write((char *)&verts[i].tex[1], sizeof(float));
 	}
 
 	if (!IsLast())
@@ -134,7 +134,7 @@ Poly *Poly::ClipToList(Poly *pPoly_, bool bClipOnPlane_)
 
 	case eCP::ONPLANE:
 	{
-		double Angle = plane.n.Dot(pPoly_->plane.n) - 1;
+		float Angle = plane.n.Dot(pPoly_->plane.n) - 1;
 
 		if ((Angle < epsilon) && (Angle > -epsilon))
 		{
@@ -235,7 +235,7 @@ Poly *Poly::CopyList() const
 Poly::eCP Poly::ClassifyPoly(Poly *pPoly_)
 {
 	bool bFront = false, bBack = false;
-	double dist;
+	float dist;
 
 	for (int i = 0; i < (int)pPoly_->GetNumberOfVertices(); i++)
 	{
@@ -346,7 +346,7 @@ void Poly::SplitPoly(Poly *pPoly_, Poly **ppFront_, Poly **ppBack_)
 		if ((!bIgnore) && (pCP[i] != pCP[iNext]))
 		{
 			Vertex v; // New vertex created by splitting
-			double p; // Percentage between the two points
+			float p; // Percentage between the two points
 
 			plane.GetIntersection(pPoly_->verts[i].p, pPoly_->verts[iNext].p, v.p, p);
 
@@ -439,8 +439,8 @@ void Poly::CalculateTextureCoordinates(float *f)
 
 		
 
-		verts[i].tex[0] = u -= 1.0/float(MAP_PIXEL_SIZE);
-		verts[i].tex[1] = v -= 1.0/float(MAP_PIXEL_SIZE);
+		verts[i].tex[0] = u -= 1.0/float(MAP_TEXTURE_RESOLUTION_SIZE);
+		verts[i].tex[1] = v -= 1.0/float(MAP_TEXTURE_RESOLUTION_SIZE);
 	}
 
 	/*
@@ -468,11 +468,11 @@ void Poly::CalculateTextureCoordinates(float *f)
 	//
 	if (bDoU || bDoV)
 	{
-		double NearestU = 0;
-		double U = verts[0].tex[0];
+		float NearestU = 0;
+		float U = verts[0].tex[0];
 
-		double NearestV = 0;
-		double V = verts[0].tex[1];
+		float NearestV = 0;
+		float V = verts[0].tex[1];
 
 		if (bDoU)
 		{
@@ -568,7 +568,7 @@ void Poly::SortVerticesCW()
 	{
 		Vector3 a;
 		Plane p;
-		double SmallestAngle = -1;
+		float SmallestAngle = -1;
 		int Smallest = -1;
 
 		a = verts[i].p - center;
@@ -581,7 +581,7 @@ void Poly::SortVerticesCW()
 			if (p.ClassifyPoint(verts[j].p) != Plane::eCP::BACK)
 			{
 				Vector3 b;
-				double Angle;
+				float Angle;
 
 				b = verts[j].p - center;
 				b.Normalize();
@@ -631,7 +631,7 @@ void Poly::SortVerticesCW()
 bool Poly::CalculatePlane()
 {
 	Vector3 centerOfMass;
-	double magnitude;
+	float magnitude;
 	int i, j;
 
 	if (GetNumberOfVertices() < 3)
@@ -683,9 +683,9 @@ bool Poly::CalculatePlane()
 	plane.n.y /= magnitude;
 	plane.n.z /= magnitude;
 
-	centerOfMass.x /= (double)GetNumberOfVertices();
-	centerOfMass.y /= (double)GetNumberOfVertices();
-	centerOfMass.z /= (double)GetNumberOfVertices();
+	centerOfMass.x /= (float)GetNumberOfVertices();
+	centerOfMass.y /= (float)GetNumberOfVertices();
+	centerOfMass.z /= (float)GetNumberOfVertices();
 
 	plane.d = -(centerOfMass.Dot(plane.n));
 
