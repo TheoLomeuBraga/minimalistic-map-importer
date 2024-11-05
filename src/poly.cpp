@@ -5,6 +5,10 @@
 // Poly member functions
 ////////////////////////////////////////////////////////////////////
 
+#ifndef MAP_PIXEL_SIZE
+#define MAP_PIXEL_SIZE 32
+#endif
+
 void Poly::WritePoly(std::ofstream &ofsFile_) const
 {
 	/*
@@ -452,8 +456,8 @@ void Poly::CalculateTextureCoordinates(float *f)
 
 		
 
-		verts[i].tex[0] = u;
-		verts[i].tex[1] = v;
+		verts[i].tex[0] = u -= 1.0/float(MAP_PIXEL_SIZE);
+		verts[i].tex[1] = v -= 1.0/float(MAP_PIXEL_SIZE);
 	}
 
 	/*
