@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cmath>
 #define MAP_PIXEL_SIZE 32
-#include "map.h"
+#include "mmapi/map.h"
 
 int main()
 {
@@ -72,7 +72,6 @@ int main()
 
                     // Escreve as coordenadas de textura do vértice
                     objFile << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
-                    // std::cout << "vt " << v.tex[0] << " " << v.tex[1] << "\n";
                 }
 
                 // Escreve a face usando os índices dos três vértices do triângulo
